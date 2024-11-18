@@ -104,3 +104,18 @@ export const accountDetail = [
     withdrawerName: '홍길동',
   },
 ];
+
+export const products = [
+  {
+    name: 'KDB Hi 입출금통장',
+    bank: 'KDB 산업은행',
+    highestRate: '연 4.00%',
+    lowestRate: '연 0.10%',
+  },
+  {
+    name: 'KDB Hi 입출금통장',
+    bank: 'KDB 산업은행',
+    highestRate: '연 4.00%',
+    lowestRate: '연 0.10%',
+  },
+];

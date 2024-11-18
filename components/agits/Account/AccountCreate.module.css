@@ -1,0 +1,32 @@
+.img_box {
+  flex: none;
+}
+.img {
+  border-radius: 100%;
+  overflow: hidden;
+}
+.txt_box {
+  width: 100%;
+}
+.txt_box .rate ul li {
+  width: 50%;
+}
+.txt_box .rate ul li p {
+  margin-bottom: 5px;
+}
+.txt_box .rate ul li label {
+  display: inline-block;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 15px;
+  cursor: auto;
+  border-radius: 15px;
+}
+.top em {
+  display: block;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.top p {
+  color: #878b8e;
+}

@@ -5,7 +5,7 @@ import {
   orderSelectMenuList,
   tranTypeSelectMenuList,
 } from '@/constants/selectMenuList/sample';
-import { Box, Flex } from '@radix-ui/themes';
+import { Box, Flex, Text } from '@radix-ui/themes';
 import { accountDetail } from '@/constants/dummy';
 import styles from './page.module.css';
 
@@ -13,9 +13,10 @@ import { tabMenuList } from '@/constants/tabMenuList/agits';
 import Account from '@/components/agits/Account/Account';
 import { getAccount } from '@/apis/agitsAPI';
 import AccountDetail from '@/components/agits/Account/AccountDetail';
-export default async function Page({ data, params }) {
+export default async function Page({ params }) {
   const [agits] = agitsSelectMenuList.filter((select) => select.id == params.id);
-  // const data = await getAccount(params.id);
+  const data = await getAccount(params.id);
+  console.log(data);
   return (
     <div className="page">
       <header>
@@ -30,7 +31,7 @@ export default async function Page({ data, params }) {
         <section>
           <Flex direction="column" gap="20px">
             <Title>모임통장 상세</Title>
-            <Account accounts={data} />
+            {data.ci == null ? <Text as="p">모임통장이 없습니다.</Text> : <Account accounts={data} />}
             <ButtonM leftButton={{ text: '권한 요청하기' }} rightButton={{ text: '회비 납부하기' }} />
           </Flex>
         </section>

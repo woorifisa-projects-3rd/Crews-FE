@@ -1,6 +1,6 @@
 import { ButtonL, ButtonM, ImageCard, SelectFilter, TabMenu, Title } from '@/components/common';
 import { agitsSelectMenuList } from '@/constants/selectMenuList/sample';
-import { Box, Callout, Flex } from '@radix-ui/themes';
+import { Box, Callout, Flex, Text } from '@radix-ui/themes';
 import styles from './page.module.css';
 import Image from 'next/image';
 
@@ -43,7 +43,7 @@ export default async function Page({ params }) {
           </Flex>
           <Flex direction="column" gap="20px">
             <Title>모임통장</Title>
-            <Account accounts={data} />
+            {data.ci == null ? <Text as="p">모임통장이 없습니다.</Text> : <Account data={data} />}
             <ButtonM leftButton={{ text: '권한 요청하기' }} rightButton={{ text: '상세 내역보기' }} />
           </Flex>
         </section>
@@ -73,7 +73,7 @@ export default async function Page({ params }) {
                 <ul>
                   {feeds.map((feed, index) => (
                     <li className="back_img" style={{ backgroundImage: `url(${feed?.image})` }} key={`feed${index}`}>
-                      <Link href={`/service/agits/feeds/${feed?.id}`} passHref>
+                      <Link href={`/service/agits/feeds/${feed?.id}`}>
                         <Image src={'/imgs/img_bg_feed.jpg'} width={190} height={190} alt={`${feed.title} 이미지`} />
                       </Link>
                     </li>

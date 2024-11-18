@@ -5,7 +5,7 @@ import styles from './Account.module.css';
 import Image from 'next/image';
 import { useState } from 'react';
 
-export default function Account({ accounts }) {
+export default function Account({ data }) {
   const [click, setClick] = useState(false);
 
   return (
@@ -14,14 +14,14 @@ export default function Account({ accounts }) {
         <Flex gap="10px">
           <Box className={styles.img_box}>
             <div className={`${styles.img} img`}>
-              <Image src="/imgs/dev/img_bank.jpg" width={30} height={30} alt={`${accounts.bankName} 이미지`} />
+              <Image src="/imgs/dev/img_bank.jpg" width={30} height={30} alt={`${data.bankName} 이미지`} />
             </div>
           </Box>
           <Box className={styles.account_info}>
             <Box className={styles.top}>
-              <em>{accounts.productName}</em>
+              <em>{data.productName}</em>
               <Text as="p" size="1" weight="medium">
-                {accounts.accountNumber}
+                {data.accountNumber}
               </Text>
             </Box>
             <Flex align="center" gap="10px" mt="2" className={styles.btm}>
@@ -31,7 +31,7 @@ export default function Account({ accounts }) {
                 </Text>
               ) : (
                 <Text as="p" weight="medium" className={styles.balance}>
-                  <em>{accounts.balance.toLocaleString('ko-KR')}</em> 원
+                  <em>{data.balance.toLocaleString('ko-KR')}</em> 원
                 </Text>
               )}
               <button
