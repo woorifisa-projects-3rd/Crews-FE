@@ -17,7 +17,7 @@ export default async function Page({ params }) {
   return (
     <div className="page">
       <header>
-        <Box className={styles.filter}>
+        <Box>
           <SelectFilter isHeader={true} as="link" pathname="/service/agits" selectList={agitsSelectMenuList}>
             {agits?.text}
           </SelectFilter>

@@ -7,7 +7,6 @@ import {
 } from '@/constants/selectMenuList/sample';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import { accountDetail } from '@/constants/dummy';
-import styles from './page.module.css';
 
 import { tabMenuList } from '@/constants/tabMenuList/agits';
 import Account from '@/components/agits/Account/Account';
@@ -20,7 +19,7 @@ export default async function Page({ params }) {
   return (
     <div className="page">
       <header>
-        <Box className={styles.filter}>
+        <Box>
           <SelectFilter isHeader={true} as="link" pathname="/service/agits" selectList={agitsSelectMenuList}>
             {agits?.text}
           </SelectFilter>
