@@ -337,8 +337,27 @@
   top: -3px;
 }
 
+@media screen and (max-width: 860px) {
+  .error_page > div {
+    display: block;
+  }
+  .error_page .img_box {
+    position: absolute;
+    left: 20px;
+    bottom: 40px;
+    opacity: 40%;
+    z-index: -1;
+  }
+}
+
 @media screen and (max-width: 480px) {
   .scroll_hide {
     padding-right: 0;
+  }
+
+  .error_page .img_box {
+    left: auto;
+    right: -20px;
+    bottom: 20px;
   }
 }

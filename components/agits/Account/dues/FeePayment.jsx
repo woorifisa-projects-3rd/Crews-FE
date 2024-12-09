@@ -1,12 +1,12 @@
 'use client';
 import { Box, Card, Flex, Strong, Text } from '@radix-ui/themes';
 import styles from './FeePayment.module.css';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Image from 'next/image';
-import { ButtonL, ButtonM, Modal, SelectFilter } from '@/components/common';
+import { ButtonL, Modal, PinNumber, SelectFilter } from '@/components/common';
 import { useModal } from '@/hooks';
 
-export default function FeePayment({ agitId, data }) {
+export default function FeePayment({ agitId, data, yearAndMonth }) {
   const crewaccountlist = data.crewAccountList;
   const personalaccountlist = data.personalAccountList.map((account) => ({
     ...account,
@@ -14,10 +14,19 @@ export default function FeePayment({ agitId, data }) {
   }));
   const selectedCrewAccouont = crewaccountlist.find((item) => item.agitId == agitId);
   const [selectedAccount, setSelectedAccount] = useState(personalaccountlist[0]);
-  const { isOpen, openModal, closeModal } = useModal();
   const handleSelect = (filter, params) => {
     const selected = personalaccountlist.find((item) => item.params === params);
     setSelectedAccount(selected);
+  };
+
+  const { isOpen: pinIsOpen, openModal: pinOpenModal, closeModal: pinCloseModal } = useModal();
+  const pinData = {
+    agitId: agitId,
+    recvAccountNumber: selectedCrewAccouont.accountNumber,
+    accountId: selectedAccount.accountId,
+    amount: selectedCrewAccouont.duesAmount,
+    year: yearAndMonth.year,
+    month: yearAndMonth.month,
   };
   return (
     <Flex direction="column" gap="20px">
@@ -58,30 +67,33 @@ export default function FeePayment({ agitId, data }) {
               </Text>
             </Flex>
             <Flex justify="between" align="center">
-              <Strong>{selectedCrewAccouont.duesAmount}</Strong>
+              <Strong>{selectedCrewAccouont?.duesAmount?.toLocaleString('ko-KR')}</Strong>
               <Text size="2" className="gray_t2">
                 원 만큼
               </Text>
             </Flex>
           </Card>
-          <ButtonL style="deep" onClick={openModal}>
+          <ButtonL style="deep" onClick={pinOpenModal}>
             이체하기
           </ButtonL>
         </Flex>
       </Flex>
       <Modal
-        isOpen={isOpen}
-        closeModal={closeModal}
+        isOpen={pinIsOpen}
+        closeModal={pinCloseModal}
         header={{
-          title: `이체 하시겠습니까?`,
+          title: (
+            <>
+              <span className="underline">PIN번호를 인증</span>해 주세요.
+            </>
+          ),
+          text: '정확히 일치해야 합니다.',
         }}
-        footer={
-          <ButtonM
-            leftButton={{ text: '취소', onClick: closeModal }}
-            rightButton={{ text: '확인', onClick: closeModal }}
-          />
-        }
-      />
+      >
+        <Suspense>
+          <PinNumber defaultStage={'auth'} defaultStatus={'transferAgit'} data={pinData} closeModal={pinCloseModal} />
+        </Suspense>
+      </Modal>
     </Flex>
   );
 }

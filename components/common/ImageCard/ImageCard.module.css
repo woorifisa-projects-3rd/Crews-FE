@@ -19,6 +19,10 @@
   width: 65px;
   flex: none;
 }
+.card .img_box .blank img {
+  visibility: visible;
+  opacity: 1;
+}
 .card .txt_box {
   width: calc(100% - 80px);
 }

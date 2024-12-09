@@ -1,8 +1,8 @@
 export const tabMenuList = [
   { text: '홈', href: '/service' },
-  { text: '운동', href: '/service?cate=exercise' },
-  { text: '여행', href: '/service?cate=travel' },
-  { text: '반려동물', href: '/service?cate=pet' },
-  { text: '게임/오락', href: '/service?cate=game' },
-  { text: '식도락', href: '/service?cate=food' },
+  { text: '운동', href: '/service?id=3' },
+  { text: '여행', href: '/service?id=4' },
+  { text: '반려동물', href: '/service?id=5' },
+  { text: '게임/오락', href: '/service?id=6' },
+  { text: '식도락', href: '/service?id=7' },
 ];

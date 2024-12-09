@@ -8,10 +8,10 @@ export default function Landing() {
       <Flex justify="between" direction="column" className={styles.inner}>
         <Box className={styles.title}>
           <Heading as="h2">
-            어쩌고저쩌고 <i className="dpb"></i>
-            카피라이트
+            소모임 통합 플랫폼, <i className="dpb"></i>
+            크루즈
           </Heading>
-          <Text as="p">설명할게 있으면 여기에 적습니다</Text>
+          <Text as="p">BaaS 기반 임베디드 금융 서비스</Text>
         </Box>
         <Flex align="end" direction="column" gap="20px" className={styles.info_box}>
           <Box className={`${styles.name} gray_t1`} align="right">

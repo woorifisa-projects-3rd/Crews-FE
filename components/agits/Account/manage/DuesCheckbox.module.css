@@ -1,0 +1,40 @@
+.checkbox {
+  font-size: 0;
+}
+.checkbox label {
+  display: inline-block;
+}
+.checkbox button {
+  height: 20px;
+}
+.checkbox button::before {
+  width: 20px;
+  height: 20px;
+}
+.checkbox [data-state='unchecked']::before {
+  background-color: #fff;
+  border: 1px solid #d0d1d8;
+  box-shadow: none;
+  border-radius: 3px;
+}
+.checkbox [data-state='checked'] {
+  color: #000;
+}
+.checkbox [data-state='checked']::before {
+  background-color: var(--point-yellow-3);
+}
+.checkbox span {
+  display: block;
+  line-height: 20px;
+}
+.checkbox button:disabled::before {
+  background-color: #f0f0f3;
+  border: 1px solid #ccccd6;
+  box-shadow: none;
+}
+.checkbox button:disabled [data-state='checked'] {
+  color: var(--gray-txt-1);
+}
+.checkbox button:disabled + span {
+  color: var(--gray-txt-1);
+}

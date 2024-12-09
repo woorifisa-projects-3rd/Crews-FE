@@ -5,8 +5,8 @@ import NicknameForm from '@/components/mypage/form/NicknameForm';
 export default async function page() {
   const nicknameData = await getNickname();
 
-  if (nicknameData?.error) {
-    throw new Error(nicknameData.error);
+  if (nicknameData?.errorCode) {
+    throw new Error(nicknameData.message);
   }
   return (
     <div className="page">

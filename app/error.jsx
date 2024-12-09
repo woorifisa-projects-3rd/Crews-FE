@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function Error({ error, reset }) {
   return (
-    <Box className="error_page">
+    <Box className="error_page" p="3">
       <Flex justify="center" align="center" gap="20px">
         <Box className="img_box">
           <Box className="img">

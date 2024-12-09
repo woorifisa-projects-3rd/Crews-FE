@@ -6,8 +6,8 @@ import { tabMenuList } from '@/constants/tabMenuList/mypage';
 export default async function Layout({ children }) {
   const profileData = await getProfile();
 
-  if (profileData?.error) {
-    throw new Error(profileData.error);
+  if (profileData?.errorCode) {
+    throw new Error(profileData.message);
   }
   return (
     <div className="page">

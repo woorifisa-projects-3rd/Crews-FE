@@ -22,7 +22,7 @@ export default function SearchForm() {
   };
 
   return (
-    <div className="page">
+    <>
       <Header side="left">검색하기</Header>
       <div className="content">
         <section>
@@ -34,6 +34,6 @@ export default function SearchForm() {
           </form>
         </section>
       </div>
-    </div>
+    </>
   );
 }

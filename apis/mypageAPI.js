@@ -25,18 +25,18 @@ export const getProfile = async () => {
 };
 
 // 프로필 이미지 업데이트
-export const updateProfileImage = async (formData) => {
-  const response = await instance.put('members/me/profile/image', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+export const updateProfileImage = async (profileImagePath) => {
+  const response = await instance.put('members/me/profile', {
+    body: JSON.stringify(profileImagePath),
   });
+  revalidatePath('/service/mypage');
   return response;
 };
 
-// 전체 관심사 목록 조회
-export const getAllInterests = async () => {
-  const response = await instance.get('interests');
+// 프로필 이미지 삭제
+export const deleteProfileImage = async () => {
+  const response = await instance.delete('members/me/profile', {});
+  revalidatePath('/service/mypage');
   return response;
 };
 
@@ -54,6 +54,7 @@ export const updateInterests = async (selectedInterests) => {
   revalidatePath('/service/mypage');
   return response;
 };
+
 // 비밀번호 수정
 export const updatePassword = async (oldPassword, newPassword, confirmPassword) => {
   const response = await instance.put('members/me/password', {
@@ -76,57 +77,71 @@ export const updateAddresses = async (addresses) => {
   return response;
 };
 
-// 모임카드 목록 조회
-export const getCrewCards = async () => {
-  const response = await instance.get('members/me/cards');
+// 모임 목록 조회
+export const getMyAgit = async () => {
+  const response = await instance.get('members/me/agits');
   return response;
 };
 
-// 모임카드 연결
-export const attachCrewCard = async (cardId, crewId) => {
-  const response = await instance.post('members/me/cards', {});
+// 모임카드 목록 조회
+export const getMyAgitCards = async () => {
+  const response = await instance.get('members/me/agits-cards');
   return response;
 };
 
 // 모임카드 해지
-export const detachCrewCard = async (cardId) => {
-  const response = await instance.delete(`members/me/cards/${cardId}`);
+export const detachAgitCard = async (cardId) => {
+  const response = await instance.delete(`members/me/agits-cards`, { body: JSON.stringify({ cardId }) });
+  revalidatePath('/service/mypage/assets');
   return response;
 };
 
-// 개인 계좌 목록 조회
+// 개인 등록된 계좌 목록 조회
 export const getPersonalAccounts = async () => {
-  const response = await instance.get('members/me/accounts');
-  return response;
-};
-
-// 개인 계좌 연결
-export const attachPersonalAccount = async (accountId, crewId) => {
-  const response = await instance.post('members/me/accounts', {});
+  const response = await instance.get('members/me/my-accounts');
   return response;
 };
 
 // 개인 계좌 해지
 export const detachPersonalAccount = async (accountId) => {
-  const response = await instance.delete(`members/me/accounts/${accountId}`);
+  const response = await instance.delete(`members/me/my-accounts`, { body: JSON.stringify({ accountId }) });
+  return response;
+};
+
+// 개인 은행계좌 조회
+export const getBankAccount = async (accountId, crewId) => {
+  const response = await instance.get('members/me/core-accounts', {});
+  return response;
+};
+
+// 개인 은행계좌 연결
+export const attachBankAccount = async (accountNumbers) => {
+  const response = await instance.post('members/me/core-accounts', { body: JSON.stringify({ accountNumbers }) });
+  revalidatePath('/service/mypage/assets');
   return response;
 };
 
 // 회비 납부 정보 조회
-export const getFeePaymentInfo = async (crewId) => {
-  const response = await instance.get(`crews/${crewId}/fees`);
-  return response;
+export const getFeePaymentInfo = async () => {
+  const response = await instance.get(`members/me/agits-accounts`);
+  revalidatePath('/service/mypage/fee');
+  return response.crewAccounts;
 };
 
 // 회비 납부하기
-export const payCrewFee = async (crewId, amount, accountId) => {
-  const response = await instance.post(`crews/${crewId}/fees/payment`, {});
+export const payCrewFee = async (pinNumber, agitId, crewAccountId, myAccountId, amount) => {
+  const response = await instance.post(`members/me/fees/payment`, {
+    body: JSON.stringify({ pinNumber, agitId, crewAccountId, myAccountId, amount }),
+  });
+  revalidatePath('/service/mypage/fee');
   return response;
 };
 
 // 거래 내역 조회
-export const getTransactionHistory = async (accountId) => {
-  const response = await instance.get(`members/me/accounts/${accountId}/transactions`);
+export const getTransactionHistory = async (crewAccountId, myAccountId) => {
+  const response = await instance.get(
+    `members/me/account-withdraws?crewAccountId=${crewAccountId}&myAccountId=${myAccountId}`,
+  );
   return response;
 };
 

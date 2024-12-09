@@ -4,7 +4,7 @@ import useModal from '@/hooks/useModal';
 import { Flex } from '@radix-ui/themes';
 import DuesModalContent from './DuesModalContent';
 
-export default function DuesModal() {
+export default function DuesModal({ agitId }) {
   const { isOpen, openModal, closeModal } = useModal();
 
   return (
@@ -17,7 +17,7 @@ export default function DuesModal() {
         회비설정
       </ButtonS>
       <Modal isOpen={isOpen} closeModal={closeModal} header={{ title: '회비 설정을 변경하시겠습니까?' }}>
-        <DuesModalContent></DuesModalContent>
+        <DuesModalContent agitId={agitId} closeModal={closeModal}></DuesModalContent>
       </Modal>
     </Flex>
   );

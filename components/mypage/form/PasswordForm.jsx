@@ -24,10 +24,8 @@ export default function PasswordForm() {
   const handleUpdatePassword = async ({ oldPassword, newPassword, confirmPassword }) => {
     const response = await updatePassword(oldPassword, newPassword, confirmPassword);
     if (response?.errorCode) {
-      console.log(response.message);
       showToast(`${response.message}`);
     } else {
-      console.log(JSON.stringify({ oldPassword, newPassword, confirmPassword }));
       alert('비밀번호가 성공적으로 수정되었습니다!');
       router.push('/service/mypage');
     }

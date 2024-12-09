@@ -2,14 +2,14 @@
 
 import { Box, Flex, Text } from '@radix-ui/themes';
 import styles from './AccountDetail.module.css';
-import { date } from '@/utils/date';
+import { dateTime } from '@/utils/date';
 
 export default function AccountDetail({ data }) {
   return (
     <li className={styles.account}>
       <Box className={styles.top}>
         <Text as="p" size="1" weight="medium">
-          {date(data.transactionTime)}
+          {dateTime(data.transactionTime)}
         </Text>
         <em>{data.description}</em>
       </Box>

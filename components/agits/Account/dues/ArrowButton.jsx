@@ -6,10 +6,10 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 
 const ArrowButton = ({ data, handleDateChange = () => {} }) => {
-  const today = new Date(); // 현재 날짜 가져오기
+  const today = new Date();
   const [date, setDate] = useState({
     year: today.getFullYear(),
-    month: today.getMonth() + 1, // 월은 0부터 시작하므로 +1
+    month: today.getMonth() + 1,
   });
 
   useEffect(() => {
@@ -18,15 +18,36 @@ const ArrowButton = ({ data, handleDateChange = () => {} }) => {
 
   const handlePreviousMonth = () => {
     setDate((prevDate) => {
+      const minYear = data?.minYear;
+      const minMonth = data?.minMonth;
       const newMonth = prevDate.month - 1;
-      return newMonth === 0 ? { year: prevDate.year - 1, month: 12 } : { year: prevDate.year, month: newMonth };
+      const newYear = newMonth === 0 ? prevDate.year - 1 : prevDate.year;
+      const adjustedMonth = newMonth === 0 ? 12 : newMonth;
+
+      const isPreviousMonthValid = newYear > minYear || (newYear === minYear && adjustedMonth >= minMonth);
+
+      if (isPreviousMonthValid) {
+        return { year: newYear, month: adjustedMonth };
+      } else {
+        return prevDate;
+      }
     });
   };
 
   const handleNextMonth = () => {
     setDate((prevDate) => {
-      const newMonth = prevDate.month + 1;
-      return newMonth === 13 ? { year: prevDate.year + 1, month: 1 } : { year: prevDate.year, month: newMonth };
+      const today = new Date();
+      const newMonth = prevDate.month + 1 === 13 ? 1 : prevDate.month + 1;
+      const newYear = prevDate.month + 1 === 13 ? prevDate.year + 1 : prevDate.year;
+
+      const isNextMonthValid =
+        newYear < today.getFullYear() || (newYear === today.getFullYear() && newMonth <= today.getMonth() + 1);
+
+      if (isNextMonthValid) {
+        return { year: newYear, month: newMonth };
+      } else {
+        return prevDate;
+      }
     });
   };
   return (
@@ -42,7 +63,9 @@ const ArrowButton = ({ data, handleDateChange = () => {} }) => {
           </button>
         </Flex>
         <Text as="p" size="2" weight="medium" className="gray_btn">
-          {`매월 ${data.dueDay}일, ${data.dueAmount.toLocaleString('ko-KR')}원`}
+          {data?.dueDay === null
+            ? `공통회비를 설정 해 주세요!!`
+            : `매월 ${data?.dueDay}일, ${data?.dueAmount?.toLocaleString('ko-KR')}원`}
         </Text>
       </Flex>
     </Box>

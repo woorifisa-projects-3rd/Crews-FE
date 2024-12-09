@@ -2,6 +2,8 @@ export const agitsSelectMenuList = [
   { id: 1, text: '모임명1' },
   { id: 2, text: '모임명2' },
   { id: 3, text: '모임명3' },
+  { id: 4, text: '모임명4' },
+  { id: 5, text: '모임명5' },
 ];
 
 export const locationSelectMenuList = [

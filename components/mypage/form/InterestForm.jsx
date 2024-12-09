@@ -107,6 +107,11 @@ export default function InterestForm({ initialInterests, subjects }) {
               <Modal
                 isOpen={isOpen}
                 closeModal={closeModal}
+                footer={
+                  <ButtonL style="deep" onClick={closeModal}>
+                    확인
+                  </ButtonL>
+                }
                 header={{
                   title: `"${nickname}"님의 관심사는 무엇인가요?`,
                   text:

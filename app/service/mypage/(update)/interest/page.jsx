@@ -1,18 +1,17 @@
 import { Header } from '@/components/common';
 import InterestForm from '@/components/mypage/form/InterestForm';
-import { getAllInterests, getInterests } from '@/apis/mypageAPI';
+import { getInterests } from '@/apis/mypageAPI';
+import { getAllInterests } from '@/apis/utilAPI';
 
 export default async function Page() {
   const interestData = await getInterests();
-  // console.log('API 응답:', interestData);
-  if (interestData?.error) {
-    throw new Error(interestData.error);
+  if (interestData?.errorCode) {
+    throw new Error(interestData.message);
   }
 
   const subjectsData = await getAllInterests();
-  // console.log('API 응답:', subjectsData);
-  if (subjectsData?.error) {
-    throw new Error(subjectsData.error);
+  if (subjectsData?.errorCode) {
+    throw new Error(subjectsData.message);
   }
 
   return (

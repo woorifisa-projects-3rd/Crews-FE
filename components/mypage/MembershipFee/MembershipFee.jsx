@@ -2,87 +2,114 @@
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { Box, Callout, Card, Flex, Strong, Text } from '@radix-ui/themes';
 import styles from './MembershipFee.module.css';
-import { useState } from 'react';
+import { Suspense, useEffect } from 'react';
 import Image from 'next/image';
-import { ButtonL, ButtonM, Modal, SelectFilter } from '@/components/common';
+import { ButtonL, Modal, PinNumber, SelectFilter, Toast } from '@/components/common';
 import { useModal } from '@/hooks';
+import useSWR, { useSWRConfig } from 'swr';
+import { useMembershipStore } from '@/stores/mypageStore';
+import { useToast } from '@/hooks';
+import { useRouter } from 'next/navigation';
+import { getFeePaymentInfo, getPersonalAccounts } from '@/apis/mypageAPI';
 
-const crewaccountlist = [
-  {
-    id: 1,
-    crewName: 'A모임',
-    img: '/dev/img_bank.jpg',
-    name: 'KB국민ONE통장',
-    accountNumber: '987654321123',
-    payday: 14,
-    amount: 10000,
-  },
-  {
-    id: 2,
-    crewName: '우리모임',
-    img: '/dev/img_bank.jpg',
-    name: '우리CUBE통장',
-    accountNumber: '110467158676',
-    payday: 13,
-    amount: 20000,
-  },
-  {
-    id: 3,
-    crewName: '너네모임',
-    img: '/dev/img_bank.jpg',
-    name: '신한 주거래 우대통장',
-    accountNumber: '330467158676',
-    payday: 12,
-    amount: 30000,
-  },
-];
+export default function MembershipFee({ crewData: crewFallbackData, myData: myFallbackData }) {
+  const { toast, setToast, toastMessage, showToast } = useToast();
+  const { isOpen: pinIsOpen, openModal: pinOpenModal, closeModal: pinCloseModal } = useModal();
+  const { mutate } = useSWRConfig();
+  const { data: crewData = [] } = useSWR('members/me/agits-accounts', async () => await getFeePaymentInfo(), {
+    fallbackData: crewFallbackData,
+  });
 
-export default function MembershipFee() {
-  const [selectedAccount, setSelectedAccount] = useState(crewaccountlist[0]);
-  const { isOpen, openModal, closeModal } = useModal();
-  const handleSelect = (filter, params) => {
-    const selected = crewaccountlist.find((item) => item.params === params);
-    setSelectedAccount(selected);
+  const { data: myData = [] } = useSWR('members/me/my-accounts', async () => await getPersonalAccounts(), {
+    fallbackData: myFallbackData,
+  });
+
+  const router = useRouter();
+  const { selectedCrewAccount, setSelectedCrewAccount, selectedMyAccount, setSelectedMyAccount } = useMembershipStore();
+  useEffect(() => {
+    if (!selectedCrewAccount && crewFallbackData?.[0]) {
+      setSelectedCrewAccount(crewFallbackData[0]);
+    }
+    if (!selectedMyAccount && myFallbackData?.[0]) {
+      setSelectedMyAccount(myFallbackData[0]);
+    }
+  }, [selectedCrewAccount, selectedMyAccount, crewFallbackData, myFallbackData]);
+
+  const handleCrewSelect = (filter, params) => {
+    const selected = crewData.find((item) => item.accountId === params);
+    setSelectedCrewAccount(selected);
+    mutate('members/me/agits-accounts', undefined, { revalidate: true });
+    mutate('members/me/my-accounts', undefined, { revalidate: true });
   };
+
+  const handleMySelect = (filter, params) => {
+    const selected = myData.find((item) => item.accountId === params);
+    setSelectedMyAccount(selected);
+  };
+
+  const handleFeeCallback = async (isSuccess, message, crewAccountId, myAccountId) => {
+    if (isSuccess) {
+      pinCloseModal();
+      mutate([crewAccountId, myAccountId]);
+      mutate('members/me/agits-accounts', undefined, { revalidate: true });
+      showToast(message);
+      router.push('/service/mypage/assets');
+    } else {
+      showToast(`이체 실패: ${message}`);
+    }
+  };
+
   return (
     <Flex direction="column" gap="20px">
       <Flex direction="column" gap="10px">
         <SelectFilter
-          selectList={crewaccountlist.map((account) => ({
+          key={selectedCrewAccount?.paid}
+          selectList={crewData?.map((account) => ({
             ...account,
-            text: account.crewName,
-            params: account.id,
+            text: account.agitName,
+            params: account.accountId,
           }))}
-          onSelect={handleSelect}
+          onSelect={handleCrewSelect}
         >
-          {crewaccountlist[0].crewName}
+          {selectedCrewAccount?.agitName || '크루 계좌 선택'}
         </SelectFilter>
-        <Card>
-          <Flex align="center" gap="10px">
-            <Box className={styles.img_box}>
-              <Box className="back_img" style={{ backgroundImage: `url(${selectedAccount.img})` }}>
-                <Image src={selectedAccount.img} width={36} height={36} alt={selectedAccount.name} />
+        <Toast as="alert" isActive={toast} onClose={() => setToast(false)} autoClose={1500}>
+          <Text>{toastMessage}</Text>
+        </Toast>
+        {selectedCrewAccount && (
+          <Card>
+            <Flex align="center" gap="10px">
+              <Box className={styles.img_box}>
+                <Box
+                  className="back_img"
+                  style={{ backgroundImage: `url(${selectedCrewAccount.bankImage || '/default-image.jpg'})` }}
+                >
+                  <Image src="/imgs/img_bg_bank.jpg" width={36} height={36} alt="은행로고" />
+                </Box>
               </Box>
-            </Box>
-            <Flex direction="column" gap="2px">
-              <Text as="p" size="2" weight="medium">
-                {selectedAccount.name}
-              </Text>
-              <Text as="p" size="3" className="gray_t2">
-                {selectedAccount.accountNumber}
-              </Text>
-            </Flex>
-          </Flex>
-        </Card>
 
-        <Callout.Root color="green">
-          <Callout.Icon>
-            <InfoCircledIcon />
-          </Callout.Icon>
-          <Callout.Text>
-            납부일은 매월 {selectedAccount.payday}일 {selectedAccount.amount}원 입니다.
-          </Callout.Text>
-        </Callout.Root>
+              <Flex direction="column" gap="2px">
+                <Text as="p" size="2" weight="medium">
+                  {selectedCrewAccount?.productName}
+                </Text>
+                <Text as="p" size="3" className="gray_t2">
+                  {selectedCrewAccount?.accountNumber}
+                </Text>
+              </Flex>
+            </Flex>
+          </Card>
+        )}
+
+        {selectedCrewAccount && (
+          <Callout.Root color="green">
+            <Callout.Icon>
+              <InfoCircledIcon />
+            </Callout.Icon>
+            <Callout.Text>
+              납부일은 매월 {selectedCrewAccount?.payday}일 {selectedCrewAccount?.ammount}원 입니다.
+            </Callout.Text>
+          </Callout.Root>
+        )}
       </Flex>
 
       <Flex direction="column">
@@ -90,43 +117,68 @@ export default function MembershipFee() {
           <Image src="/icons/ico_up_arrow.svg" width={30} height={30} alt="up arrow" />
         </Box>
         <Flex direction="column" gap="10px">
-          <SelectFilter filter="location" selectList={crewaccountlist} onSelect={handleSelect}>
-            {crewaccountlist[0].text}
+          <SelectFilter
+            selectList={myData.map((account, index) => ({
+              ...account,
+              text: account.accountName + ' #' + index,
+              params: account.accountId,
+            }))}
+            onSelect={handleMySelect}
+          >
+            {selectedMyAccount?.accountName || '내 계좌 선택'}
           </SelectFilter>
-          <Card>
-            <Flex justify="between" align="center">
-              <Strong>
-                <span className="underline">우리FISA 통장</span>
-              </Strong>
-              <Text size="2" className="gray_t2">
-                에서
-              </Text>
-            </Flex>
-            <Flex justify="between" align="center">
-              <Strong>30,000</Strong>
-              <Text size="2" className="gray_t2">
-                원 만큼
-              </Text>
-            </Flex>
-          </Card>
-          <ButtonL style="deep" onClick={openModal}>
+
+          {selectedMyAccount && (
+            <Card>
+              <Flex justify="between" align="center">
+                <Strong>
+                  <span className="underline">{selectedMyAccount?.accountName}</span>
+                </Strong>
+                <Text size="2" className="gray_t2">
+                  에서
+                </Text>
+              </Flex>
+              <Flex justify="between" align="center">
+                <Strong>{selectedCrewAccount?.remainingAmount}</Strong>
+                <Text size="2" className="gray_t2">
+                  원 만큼
+                </Text>
+              </Flex>
+            </Card>
+          )}
+
+          <ButtonL style="deep" onClick={pinOpenModal} disabled={selectedCrewAccount?.paid}>
             이체하기
           </ButtonL>
         </Flex>
       </Flex>
+
       <Modal
-        isOpen={isOpen}
-        closeModal={closeModal}
+        isOpen={pinIsOpen}
+        closeModal={pinCloseModal}
         header={{
-          title: `이체 하시겠습니까?`,
+          title: (
+            <>
+              <span className="underline">PIN번호를 인증</span>해 주세요.
+            </>
+          ),
+          text: '정확히 일치해야 합니다.',
         }}
-        footer={
-          <ButtonM
-            leftButton={{ text: '취소', onClick: closeModal }}
-            rightButton={{ text: '확인', onClick: closeModal }}
+      >
+        <Suspense>
+          <PinNumber
+            defaultStage={'auth'}
+            defaultStatus={'transferMyage'}
+            data={{
+              agitId: selectedCrewAccount?.agitId,
+              crewAccountId: selectedCrewAccount?.accountId,
+              myAccountId: selectedMyAccount?.accountId,
+              amount: selectedCrewAccount?.remainingAmount,
+            }}
+            callback={handleFeeCallback}
           />
-        }
-      />
+        </Suspense>
+      </Modal>
     </Flex>
   );
 }

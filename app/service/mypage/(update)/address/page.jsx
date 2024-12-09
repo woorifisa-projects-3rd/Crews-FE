@@ -5,8 +5,8 @@ import { Flex } from '@radix-ui/themes';
 
 export default async function page() {
   const addressData = await getAddresses();
-  if (addressData?.error) {
-    throw new Error(addressData.error);
+  if (addressData?.errorCode) {
+    throw new Error(addressData.message);
   }
   return (
     <div className="page">

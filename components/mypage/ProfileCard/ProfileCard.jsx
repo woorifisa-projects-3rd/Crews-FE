@@ -1,20 +1,23 @@
 'use client';
-
 import { Box, Text, Flex } from '@radix-ui/themes';
 import styles from './ProfileCard.module.css';
 import { ButtonS, Label, Dropdown } from '@/components/common';
 import Image from 'next/image';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { EXCLUDED_INTEREST_IDS } from '@/constants/excludedIds';
 import { useNicknameStore } from '@/stores/mypageStore';
-import { useEffect } from 'react';
-import instance from '@/apis/instance';
+import { useEffect, useRef } from 'react';
+import { deleteProfileImage, getProfile, updateProfileImage } from '@/apis/mypageAPI';
+import { useRouter } from 'next/navigation';
+import { deleteFileFromS3, getSignedS3Url, uploadFileToS3 } from '@/utils/s3utills';
 
 export default function ProfileCard({ profileData }) {
-  const { data } = useSWR('members/me/profile', () => instance.get('members/me/profile'), {
+  const { data } = useSWR('members/me/profile', () => getProfile(), {
     fallbackData: profileData,
   });
   const { nickname, setNickname } = useNicknameStore();
+  const router = useRouter();
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (data?.nickname && data.nickname !== nickname) {
@@ -25,16 +28,50 @@ export default function ProfileCard({ profileData }) {
   const filteredInterests = (data?.interests || []).filter(
     (interest) => !EXCLUDED_INTEREST_IDS.includes(interest.interestingId),
   );
-  const onEditPhotoClick = () => {
-    alert('사진 수정하기가 클릭되었습니다.');
+
+  const handleEditProfile = () => {
+    fileInputRef.current?.click();
   };
 
-  const onViewLargePhotoClick = () => {
-    alert('이미지 크게보기가 클릭되었습니다.');
+  const handleChangeFile = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!['image/png', 'image/jpeg'].includes(file.type)) {
+      alert('지원하지 않는 파일 형식입니다. png 또는 jpg 이미지만 업로드할 수 있습니다.');
+      return;
+    }
+
+    const { signedUrl, fileName } = await getSignedS3Url(file.type, 'profiles');
+    await uploadFileToS3(signedUrl, file);
+
+    const updateResponse = await updateProfileImage({ profileImagePath: fileName });
+    if (updateResponse?.errorCode) {
+      alert(updateResponse.message);
+    } else {
+      await mutate('members/me/profile', undefined, { revalidate: true });
+      alert('사진이 등록되었습니다.');
+      router.push('/service/mypage');
+    }
   };
 
-  const onDeletePhotoClick = () => {
-    alert('사진 삭제하기가 클릭되었습니다.');
+  const handleDeleteProfile = async () => {
+    const fileName = data.profileImage;
+    const folder = 'profiles';
+
+    if (!fileName) {
+      console.log('삭제할 파일이 없습니다.');
+    }
+
+    deleteFileFromS3(fileName, folder);
+
+    const updateRespons = await deleteProfileImage();
+    if (updateRespons?.errorCode) {
+      alert(updateRespons.message);
+    } else {
+      await mutate('members/me/profile', undefined, { revalidate: true });
+      alert('사진이 삭제되었습니다.');
+    }
   };
 
   return (
@@ -44,16 +81,27 @@ export default function ProfileCard({ profileData }) {
           <div className={styles.img_box}>
             <div
               className={`${styles.profile_img} back_img ${data.profileImage == (null || '') ? styles.blank : ''}`}
-              style={{ backgroundImage: `url(${data.profileImage})` }}
+              style={{
+                backgroundImage: `url(${
+                  data.profileImage?.trim()
+                    ? `https://djogyo1sj025q.cloudfront.net/${data.profileImage}`
+                    : '/imgs/img_bg_profile.jpg'
+                })`,
+              }}
             >
               <Image src="/imgs/img_bg_profile.jpg" width={56} height={56} alt={`${data.profileImage} 프로필 이미지`} />
             </div>
             <div className={styles.dropdown}>
               <Dropdown
                 menuList={[
-                  { text: '사진 수정하기', onClick: onEditPhotoClick },
-                  { text: '이미지 크게보기', onClick: onViewLargePhotoClick },
-                  { text: '사진 삭제하기', onClick: onDeletePhotoClick },
+                  {
+                    text: '사진 수정하기',
+                    onClick: () => {
+                      handleEditProfile();
+                      document.activeElement.blur();
+                    },
+                  },
+                  { text: '사진 삭제하기', onClick: handleDeleteProfile },
                 ]}
               >
                 <button className={styles.btn_camera}>
@@ -110,6 +158,13 @@ export default function ProfileCard({ profileData }) {
           )}
         </div>
       </div>
+      <input
+        type="file"
+        accept={'image/png, image/jpeg'}
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        onChange={handleChangeFile}
+      />
     </Flex>
   );
 }

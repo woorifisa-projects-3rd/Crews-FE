@@ -1,16 +1,36 @@
+'use client';
+
 import { Label } from '@/components/common';
 import styles from './ApplyModalContent.module.css';
 import { Callout, Flex, Text } from '@radix-ui/themes';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
+import useSWR from 'swr';
+import { getAgitIntroducing, getAgitMeetings } from '@/apis/searchAPI';
+import { BASE_URL } from '@/constants/auth';
+import { getAddressValue } from '@/utils/address';
 
-export default function ApplyModalContent() {
+export default function ApplyModalContent({ agitId }) {
+  const { data: introducingData } = useSWR(`${BASE_URL}agits/${agitId}/introducing`, async () => {
+    const response = await getAgitIntroducing(agitId);
+    return response;
+  });
+
+  const { data: meetingsData } = useSWR(`${BASE_URL}agits/${agitId}/meetings/recent`, async () => {
+    const response = await getAgitMeetings(agitId);
+    return response;
+  });
+
   return (
     <Flex direction="column" gap="20px">
       <div className={styles.img_box}>
         <div className="img">
-          <img src="/imgs/dev/img_apply.jpg" />
+          {introducingData?.image == '' || introducingData?.image == null ? (
+            <img src="/imgs/dev/img_apply.jpg" />
+          ) : (
+            <img src={introducingData.image} />
+          )}
         </div>
-        <Label style="lime">반려동물</Label>
+        <Label style="lime">{introducingData?.subject}</Label>
       </div>
       <Flex direction="column" gap="20px" className={styles.txt_box}>
         <div className="info_list">
@@ -19,25 +39,19 @@ export default function ApplyModalContent() {
               <li>
                 <em>활동지역</em>
                 <Text as="p" size="2" weight="medium" className="gray_t1">
-                  서울시 마포구 상암동
+                  {getAddressValue(introducingData?.address)}
                 </Text>
               </li>
               <li>
                 <em>한줄소개</em>
                 <Text as="p" size="2" weight="medium" className="gray_t1">
-                  한줄소개 한줄소개 한줄소개
+                  {introducingData?.introduce}
                 </Text>
               </li>
               <li>
                 <em>모임특징</em>
                 <Text as="p" size="2" weight="medium" className="gray_t1">
-                  우리는 이런것도 하고 저런것도 하고 이래저래 어쩌고저쩌고 빙글빙글 얼렁뚱땅
-                </Text>
-              </li>
-              <li>
-                <em>모임회비</em>
-                <Text as="p" size="2" weight="medium" className="gray_t1">
-                  매월 1일, 30,000원씩
+                  {introducingData?.content}
                 </Text>
               </li>
             </ul>
@@ -46,15 +60,13 @@ export default function ApplyModalContent() {
         <div className={styles.interest_list}>
           <Flex wrap="wrap" gap="10px" asChild>
             <ul>
-              <li>
-                <Label style="deep">#등산</Label>
-              </li>
-              <li>
-                <Label style="deep">#로드 트립</Label>
-              </li>
-              <li>
-                <Label style="deep">#미식탐방</Label>
-              </li>
+              {introducingData?.interests.map((interest) => {
+                return (
+                  <li key={`interest${interest?.id}`}>
+                    <Label style="deep">{`#${interest?.name}`}</Label>
+                  </li>
+                );
+              })}
             </ul>
           </Flex>
         </div>
@@ -63,7 +75,7 @@ export default function ApplyModalContent() {
             <InfoCircledIcon />
           </Callout.Icon>
           <Callout.Text>
-            최근 한달동안 정기모임이 <span className="underline">3회</span> 진행되었어요!
+            최근 한달동안 정기모임이 <span className="underline">{meetingsData}번</span> 진행되었어요!
           </Callout.Text>
         </Callout.Root>
       </Flex>

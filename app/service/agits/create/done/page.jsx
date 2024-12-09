@@ -3,7 +3,7 @@ import { Box, Flex, Text } from '@radix-ui/themes';
 import Image from 'next/image';
 import styles from '@/app/service/agits/create/done/page.module.css';
 
-export default async function Page() {
+export default async function Page({ searchParams }) {
   return (
     <div className="page">
       <Header side="left">생성 완료</Header>
@@ -28,7 +28,11 @@ export default async function Page() {
               <Box className={styles.buttons}>
                 <ButtonM
                   leftButton={{ as: 'link', text: '나중에', href: `/service/agits` }}
-                  rightButton={{ as: 'link', text: '생성하기', href: `/service/agits` }}
+                  rightButton={{
+                    as: 'link',
+                    text: '생성하기',
+                    href: `/service/agits/${searchParams.q}/accounts/create`,
+                  }}
                 />
               </Box>
             </section>

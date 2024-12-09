@@ -21,7 +21,6 @@ export default function AgitHeader({ currentId }) {
       setAgit(filtered);
     }
   }, [agitInfoList, currentId]);
-
   return (
     <header>
       <Flex justify="between" align="center" gap="10px" className={styles.agit_filter}>

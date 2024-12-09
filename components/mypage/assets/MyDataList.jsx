@@ -1,66 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Flex, Box, Text } from '@radix-ui/themes';
 import styles from './MyDataList.module.css';
+import { ButtonL } from '@/components/common';
 
-export default function MyDataList() {
-  const [assets, setAssets] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const handleSelect = (index) => {
-    setAssets((prevAssets) =>
-      prevAssets.map((asset, i) => ({
-        ...asset,
-        isSelected: i === index ? !asset.isSelected : asset.isSelected,
-      })),
-    );
-  };
-
-  const fetchAssetData = async () => {
-    try {
-      const dummyData = [
-        {
-          img: '/dev/img_bank.jpg',
-          name: 'KB국민ONE통장',
-          accountNumber: '110467158676',
-          isSelected: false,
-        },
-        {
-          img: '/dev/img_bank.jpg',
-          name: '우리CUBE통장',
-          accountNumber: '110467158676',
-          isSelected: false,
-        },
-        {
-          img: '/dev/img_bank.jpg',
-          name: '신한 주거래 우대통장',
-          accountNumber: '110467158676',
-          isSelected: false,
-        },
-      ];
-
-      setAssets(dummyData);
-    } catch (error) {
-      console.error('자산 데이터 로딩 실패:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAssetData();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <Flex align="center" justify="center" style={{ minHeight: '200px' }}>
-        마이데이터를 불러옵니다...
-      </Flex>
-    );
-  }
-
-  if (!assets || assets.length === 0) {
+export default function MyDataList({ data, selectedAssets, onSelect, onConnect }) {
+  if (!data || data.length === 0) {
     return (
       <Flex align="center" justify="center" style={{ minHeight: '200px' }}>
         연결 가능한 자산이 없습니다.
@@ -69,43 +14,56 @@ export default function MyDataList() {
   }
 
   return (
-    <Flex direction="column" gap="10px" asChild>
+    <Flex direction="column" gap="10px">
       <ul className={styles.assetList}>
-        {assets.map((asset, i) => (
-          <li key={`asset${i}`} className={styles.assetItem}>
-            <Flex align="center" justify="between">
-              <Flex align="center" gap="10px">
-                <Box className={styles.imgBox}>
-                  <Box
-                    className={`${styles.profileImg} back_img`}
-                    style={{ backgroundImage: `url(/dev/img_bank.jpg)` }}
-                  >
-                    <Image src="/imgs/img_bg_bank.jpg" width={36} height={36} alt={`카드 이미지`} />
+        <Flex direction="column" gap="10px">
+          {data.map((asset) => (
+            <li key={`asset-${asset.accountNumber}`} className={styles.assetItem}>
+              <Flex align="center" justify="between">
+                <Flex align="center" gap="10px">
+                  <Box className={styles.imgBox}>
+                    <Box
+                      className={`${styles.profileImg} back_img`}
+                      style={{ backgroundImage: `url(${asset.bankImage})` }}
+                    >
+                      <Image
+                        src={asset.bankImage}
+                        width={36}
+                        height={36}
+                        alt={`${asset.productName} 이미지`}
+                        className={styles.image}
+                      />
+                    </Box>
                   </Box>
-                </Box>
-                <Flex direction="column" gap="0px">
-                  <Text as="p" weight="bold">
-                    {asset.name}
-                  </Text>
-                  <Text as="p" size="2" className="gray_t2">
-                    {asset.accountNumber}
-                  </Text>
+                  <Flex direction="column" gap="0px">
+                    <Text as="p" weight="bold">
+                      {asset.productName}
+                    </Text>
+                    <Text as="p" size="2" className="gray_t2">
+                      {asset.accountNumber}
+                    </Text>
+                  </Flex>
+                </Flex>
+                <Flex align="center" gap="10px">
+                  <input
+                    type="checkbox"
+                    id={`asset-${asset.accountNumber}`}
+                    checked={selectedAssets.includes(asset.accountNumber)}
+                    onChange={() => onSelect(asset.accountNumber)}
+                    className={styles.checkboxInput}
+                  />
+                  <label htmlFor={`asset-${asset.accountNumber}`} className={`blue_bg ${styles.selectButton}`}>
+                    {selectedAssets.includes(asset.accountNumber) ? '선택해제' : '선택하기'}
+                  </label>
                 </Flex>
               </Flex>
-              <input
-                type="checkbox"
-                id={`asset-${i}`}
-                checked={asset.isSelected}
-                onChange={() => handleSelect(i)}
-                className={styles.checkboxInput}
-              />
-              <label htmlFor={`asset-${i}`} className={`blue_bg ${styles.selectButton}`}>
-                {asset.isSelected ? '선택해제' : '선택하기'}
-              </label>
-            </Flex>
-          </li>
-        ))}
+            </li>
+          ))}
+        </Flex>
       </ul>
+      <ButtonL style="deep" onClick={onConnect}>
+        선택한 자산 연결하기
+      </ButtonL>
     </Flex>
   );
 }

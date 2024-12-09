@@ -11,16 +11,10 @@
 .txt_box .rate ul li {
   width: 50%;
 }
-.txt_box .rate ul li p {
-  margin-bottom: 5px;
-}
+
 .txt_box .rate ul li label {
-  display: inline-block;
-  height: 30px;
-  line-height: 30px;
-  padding: 0 15px;
-  cursor: auto;
-  border-radius: 15px;
+  display: block;
+  color: var(--point-yellow-2);
 }
 .top em {
   display: block;
@@ -29,4 +23,27 @@
 }
 .top p {
   color: #878b8e;
+}
+
+.account_info_list em {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+}
+.account_info_list ul {
+  margin-top: 10px;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+.account_info_list ul li {
+  border-top: 1px solid var(--gray-bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+}
+.account_info_list ul li b {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
 }

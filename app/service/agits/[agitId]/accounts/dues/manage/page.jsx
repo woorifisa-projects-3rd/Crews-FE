@@ -1,71 +1,31 @@
-import AccountDetail from '@/components/agits/Account/AccountDetail';
-import ArrowButton from '@/components/agits/Account/dues/ArrowButton';
-import DuesModal from '@/components/agits/Account/manage/DuesModal';
-import ProfileCard from '@/components/agits/Account/manage/ProfileCard';
-import { ButtonL, Header, Title } from '@/components/common';
-import { accountDetail } from '@/constants/dummy';
+import { crewAccountDepositInfo, getCommonDues, getDuesProfile } from '@/apis/agitsAPI';
+import DuesManage from '@/components/agits/Account/manage/DuesManage';
 
-import { date } from '@/constants/dummy';
-import { Box, Flex, Text } from '@radix-ui/themes';
-const profileDatas = {
-  size: 2,
-  list: [
-    {
-      profileImage: null,
-      email: '1234@gmail.com',
-      name: 'sws',
-      nickname: '날라다니는무디',
-      interests: null,
-    },
-    {
-      profileImage: null,
-      email: '1234@gmail.com',
-      name: 'sws',
-      nickname: '날라다니는무디',
-      interests: null,
-    },
-  ],
-};
+export default async function Page({ params }) {
+  const yearAndMonth = {
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+  };
+  const commonDues = await getCommonDues(params.agitId);
+  if (commonDues?.errorCode) {
+    throw new Error(commonDues.message);
+  }
+  const profileDatas = await getDuesProfile(params.agitId, yearAndMonth);
+  if (profileDatas?.errorCode) {
+    throw new Error(profileDatas.message);
+  }
 
-export default function Page() {
+  const accountDetail = await crewAccountDepositInfo(params.agitId, yearAndMonth);
+  if (accountDetail?.errorCode) {
+    throw new Error(accountDetail.message);
+  }
+
   return (
-    <div className="page">
-      <Header side="center">회비 납부 관리</Header>
-      <Flex direction="column" gap="10px" className="content">
-        <section>
-          <ArrowButton data={date}></ArrowButton>
-          <DuesModal></DuesModal>
-        </section>
-        <section>
-          <Flex direction="column" gap="20px">
-            <Flex justify="between" align="center">
-              <Title>미납 인원</Title>
-              <Text as="p" size="2" weight="medium" className="gray_t1">
-                {profileDatas.size}명
-              </Text>
-            </Flex>
-            <Flex direction="column" asChild>
-              <ul>
-                {profileDatas.list.map((profileData, i) => {
-                  return <ProfileCard key={i} profileData={profileData}></ProfileCard>;
-                })}
-              </ul>
-            </Flex>
-            <ButtonL style="deep">일괄요청</ButtonL>
-          </Flex>
-        </section>
-        <section>
-          <Title>이체내역</Title>
-
-          <Box mt="1">
-            <ul>
-              {accountDetail.map((detail, i) => {
-                return <AccountDetail data={detail} key={`detail${i}`} />;
-              })}
-            </ul>
-          </Box>
-        </section>
-      </Flex>
-    </div>
+    <DuesManage
+      agitId={params.agitId}
+      commonDues={commonDues}
+      profileDatas={profileDatas}
+      accountDetail={accountDetail}
+    ></DuesManage>
   );
 }

@@ -5,14 +5,6 @@ import { Header } from '@/components/common';
 import { Flex } from '@radix-ui/themes';
 
 export default async function Page({ params }) {
-  const allAccounts = await getAllAccounts();
-  if (allAccounts?.errorCode) {
-    throw new Error(allAccounts.message);
-  }
-  const dues = await getDues(params.agitId);
-  if (dues?.errorCode) {
-    throw new Error(dues.message);
-  }
   const commonDues = await getCommonDues(params.agitId);
   if (commonDues?.errorCode) {
     throw new Error(commonDues.message);
@@ -25,6 +17,14 @@ export default async function Page({ params }) {
   const history = await getMyAccountHistory(date);
   if (history?.errorCode) {
     throw new Error(history.message);
+  }
+  const allAccounts = await getAllAccounts(date);
+  if (allAccounts?.errorCode) {
+    throw new Error(allAccounts.message);
+  }
+  const dues = await getDues(params.agitId, date);
+  if (dues?.errorCode) {
+    throw new Error(dues.message);
   }
   return (
     <div className="page">

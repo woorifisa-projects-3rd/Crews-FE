@@ -1,6 +1,9 @@
 .img_box {
   position: relative;
 }
+.img_box img {
+  width: 100%;
+}
 .img_box > span {
   position: absolute;
   left: 10px;

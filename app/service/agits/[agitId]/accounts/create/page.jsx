@@ -1,10 +1,14 @@
 import { Header } from '@/components/common';
 import { Flex } from '@radix-ui/themes';
 
-import { products } from '@/constants/dummy';
 import DepositProduct from '@/components/agits/Account/AccountCreate';
+import { getProducts } from '@/apis/agitsAPI';
 
-export default async function Page() {
+export default async function Page({ params }) {
+  const products = await getProducts();
+  if (products?.errorCode) {
+    throw new Error(products.message);
+  }
   return (
     <div className="page">
       <header>
@@ -14,8 +18,8 @@ export default async function Page() {
         <section>
           <Flex direction="column" gap="10px" asChild>
             <ul>
-              {products.map((product, i) => {
-                return <DepositProduct key={i} product={product}></DepositProduct>;
+              {products?.products.map((product, i) => {
+                return <DepositProduct key={i} agitId={params.agitId} product={product}></DepositProduct>;
               })}
             </ul>
           </Flex>

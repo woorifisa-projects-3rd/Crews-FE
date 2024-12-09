@@ -160,4 +160,6 @@ export const cardLists = [
 export const date = {
   dueAmount: 20000,
   dueDay: 4,
+  minYear: 2024,
+  minMonth: 11,
 };

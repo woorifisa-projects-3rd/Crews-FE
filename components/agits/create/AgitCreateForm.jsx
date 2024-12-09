@@ -1,67 +1,105 @@
 'use client';
 import { Box, Flex, RadioGroup, Text } from '@radix-ui/themes';
-import { Header } from '@/components/common';
-import { useForm } from 'react-hook-form';
+import { AddressFormField, Header } from '@/components/common';
+import { Controller, useForm } from 'react-hook-form';
 import { ButtonL, Toast } from '@/components/common';
 import { useState } from 'react';
 import scrollToTop from '@/utils/scrollToTop';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks';
-
+import { isAddressEmpty } from '@/utils/address';
+import { createAgitRequest, validateAgitName } from '@/apis/agitsAPI';
+import { NONE } from '@/constants/address';
 export default function AgitCreateForm({ subjects }) {
+  const [currentSubject, setCurrentSubject] = useState(subjects[0]?.subjectId || 1);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [asState, setAsState] = useState('alert');
   const { toast, setToast, toastMessage, showToast } = useToast();
+  const [isUsed, setIsUsed] = useState('nonClick');
+
   const router = useRouter();
   const {
     register,
     handleSubmit,
     getValues,
+    control,
     formState: { errors },
   } = useForm();
 
-  const DuplicateCheck = () => {
-    if (getValues('title').length === 0) {
+  const DuplicateCheck = async () => {
+    if (getValues('name').length === 0) {
       scrollToTop();
       setAsState('alert');
       showToast('아지트 이름을 입력해주세요.');
       return;
     }
 
-    let isUesd = false;
-
-    if (getValues('title') === 'test') {
-      console.log('test');
-      isUesd = true;
+    const validateAgitNameData = await validateAgitName(getValues('name'));
+    if (validateAgitName.errorCode) {
+      showToast(validateAgitName.message);
     }
-
-    if (isUesd) {
+    if (validateAgitNameData?.used) {
       scrollToTop();
       setAsState('alert');
       showToast('이미 사용중인 아지트 이름입니다.');
+      setIsUsed(true);
       return;
     } else {
       scrollToTop();
       setAsState('info');
       showToast('사용 가능한 아지트 이름입니다.');
+      setIsUsed(false);
     }
   };
 
-  const onSubmit = async () => {
-    console.log(getValues('topic'));
+  const changeSubject = async (value) => {
+    setCurrentSubject(parseInt(value, 10));
+  };
+
+  const handleOnSubmit = async (data) => {
+    setAsState('alert');
+    if (isUsed === 'nonClick') {
+      scrollToTop();
+      showToast('아지트 이름 중복을 확인해주세요!');
+      return;
+    } else if (isUsed) {
+      scrollToTop();
+      showToast('사용중인 아지트 이름으로 생성할 수 없습니다.');
+      return;
+    }
     if (selectedInterests.length < 1) {
       scrollToTop();
-      setAsState('alert');
       showToast('관심사를 1개 이상 선택해주세요!');
       return;
-    } else if (selectedInterests.length > 4) {
+    } else if (selectedInterests.length >= 4) {
       scrollToTop();
-      setAsState('alert');
       showToast('관심사를 3개 이하로 선택해주세요!');
       return;
     }
 
-    router.push('/service/agits/create/done');
+    const isEmpty = isAddressEmpty(data.address);
+    if (isEmpty) {
+      showToast('활동 지역을 설정해주세요!');
+      return;
+    }
+
+    const address = {
+      doName: data.address.doName || NONE,
+      siName: data.address.siName || NONE,
+      guName: data.address.guName || NONE,
+      dongName: data.address.dongName || NONE,
+    };
+
+    const agitData = { ...data, subject: currentSubject, interests: selectedInterests, addressRequest: address };
+
+    const response = await createAgitRequest(agitData);
+    if (response?.errorCode) {
+      showToast(response.message);
+    } else {
+      console.log('response', response);
+      console.log('response.id', response.id);
+      router.push(`/service/agits/create/done?q=${response.id}`);
+    }
   };
 
   const toggleInterest = (interestId) => {
@@ -78,60 +116,76 @@ export default function AgitCreateForm({ subjects }) {
         <Text>{toastMessage}</Text>
       </Toast>
       <div className="content">
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(handleOnSubmit)}>
           <Flex direction="column" gap="10px" className="content">
             <Flex direction="column" gap="10px" asChild>
               <section>
                 <Box className="row">
-                  <Text as="label" htmlFor="title" className="require">
+                  <Text as="label" htmlFor="name" className="require">
                     아지트 이름
                   </Text>
                   <Box className="input input_btn">
                     <input
                       type="text"
-                      id="title"
+                      id="name"
                       placeholder="아지트 이름을 입력해주세요!"
-                      {...register('title', {
+                      {...register('name', {
                         required: '아지트 이름을 입력해주세요.',
                         maxLength: {
                           value: 20,
                           message: '최대 20자까지만 입력할 수 있습니다.',
                         },
                       })}
-                      className={errors.title ? 'error' : ''}
+                      onChange={() => setIsUsed('nonClick')}
+                      className={errors.name ? 'error' : ''}
                     />
                     <button type="button" onClick={DuplicateCheck}>
                       중복확인
                     </button>
                   </Box>
-                  {errors.title && (
+                  {errors.name && (
                     <Text as="p" className="error">
-                      {errors.title.message}
+                      {errors.name.message}
                     </Text>
                   )}
                 </Box>
                 <Box className="row">
-                  <Text as="label" htmlFor="introduce" className="require">
+                  <Controller
+                    name="address"
+                    control={control}
+                    render={({ field }) => (
+                      <AddressFormField
+                        value={field.value}
+                        onChange={(newAddress) => {
+                          field.onChange(newAddress);
+                        }}
+                        showToast={showToast}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box className="row">
+                  <Text as="label" htmlFor="introduction" className="require">
                     아지트 한 줄 소개
                   </Text>
                   <Box className="input">
                     <input
                       type="text"
-                      id="introduce"
+                      id="introduction"
                       placeholder="한 줄 소개를 입력해주세요!"
-                      {...register('introduce', {
+                      {...register('introduction', {
                         required: '한 줄 소개를 입력해주세요.',
                         maxLength: {
                           value: 30,
                           message: '최대 30자까지만 입력할 수 있습니다.',
                         },
                       })}
-                      className={errors.introduce ? 'error' : ''}
+                      className={errors.introduction ? 'error' : ''}
                     />
                   </Box>
-                  {errors.introduce && (
+                  {errors.introduction && (
                     <Text as="p" className="error">
-                      {errors.introduce.message}
+                      {errors.introduction.message}
                     </Text>
                   )}
                 </Box>
@@ -144,28 +198,17 @@ export default function AgitCreateForm({ subjects }) {
                 </Text>
                 <Box className="radio_group">
                   <RadioGroup.Root
-                    size="5"
-                    defaultValue="1"
+                    size="6"
+                    defaultValue="2"
+                    value={currentSubject.toString()}
                     name="topic"
-                    {...register('topic', {
-                      required: '아지트 주제를 선택해주세요.',
-                    })}
+                    onValueChange={(value) => changeSubject(value)}
                   >
-                    <Box className="radio">
-                      <RadioGroup.Item value="1">운동</RadioGroup.Item>
-                    </Box>
-                    <Box className="radio">
-                      <RadioGroup.Item value="2">여행</RadioGroup.Item>
-                    </Box>
-                    <Box className="radio">
-                      <RadioGroup.Item value="3">반려동물</RadioGroup.Item>
-                    </Box>
-                    <Box className="radio">
-                      <RadioGroup.Item value="4">게임/오락</RadioGroup.Item>
-                    </Box>
-                    <Box className="radio">
-                      <RadioGroup.Item value="5">식도락</RadioGroup.Item>
-                    </Box>
+                    {subjects.map((subject) => (
+                      <Box className="radio" key={`subjectRadio${subject.subjectId}`}>
+                        <RadioGroup.Item value={subject.subjectId.toString()}>{subject.subjectName}</RadioGroup.Item>
+                      </Box>
+                    ))}
                   </RadioGroup.Root>
                 </Box>
               </section>
@@ -179,38 +222,35 @@ export default function AgitCreateForm({ subjects }) {
                         관심사
                       </Text>
                       <Text as="p" size="2" weight="medium" className="gray_t1">
-                        {getValues('title')} 모임의 관심사는 무엇인가요? <i className="dpb"></i>
-                        {getValues('title')} 모임의 관심사를 기반으로 사람들에게 알려요.
+                        {getValues('name')} 모임의 관심사는 무엇인가요? <i className="dpb"></i>
+                        {getValues('name')} 모임의 관심사를 기반으로 사람들에게 알려요.
                       </Text>
                     </Box>
                     <div className="interest_list">
-                      {subjects.map(
-                        (subject, i) =>
-                          i === 0 && (
-                            <Flex gap="10px" wrap="wrap" key={`subject${subject.subjectId}`} asChild>
-                              <ul>
-                                {subject.interests.map((interest) => (
-                                  <li key={`interest${interest.interestId}`}>
-                                    <input
-                                      type="checkbox"
-                                      id={`interest-${interest.interestId}`}
-                                      checked={selectedInterests.includes(interest.interestId)}
-                                      onChange={() => toggleInterest(interest.interestId)}
-                                    />
-                                    <label htmlFor={`interest-${interest.interestId}`}>{interest.interestName}</label>
-                                  </li>
-                                ))}
-                              </ul>
-                            </Flex>
-                          ),
-                      )}
+                      <Flex gap="10px" wrap="wrap" asChild>
+                        <ul>
+                          {subjects
+                            .find((subject) => subject.subjectId === currentSubject)
+                            ?.interests.map((interest) => (
+                              <li key={`interest${interest.interestingId}`}>
+                                <input
+                                  type="checkbox"
+                                  id={`interest-${interest.interestingId}`}
+                                  checked={selectedInterests.includes(interest.interestingId)}
+                                  onChange={() => toggleInterest(interest.interestingId)}
+                                />
+                                <label htmlFor={`interest-${interest.interestingId}`}>{interest.name}</label>
+                              </li>
+                            ))}
+                        </ul>
+                      </Flex>
                       <Text as="p" size="2" weight="medium" className="gray_t1" mt="5px">
                         최소 1개에서 3대까지 등록할 수 있습니다!
                       </Text>
                     </div>
                   </Flex>
                   <ButtonL type="submit" style="deep">
-                    제출하기
+                    생성하기
                   </ButtonL>
                 </Flex>
               </section>

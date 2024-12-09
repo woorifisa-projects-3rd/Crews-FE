@@ -31,7 +31,6 @@ export default function NicknameForm({ nicknameData }) {
     const response = await updateNickname(nickname);
 
     if (response?.errorCode) {
-      console.log(`닉네임 변경 실패: ${response.message}`);
       showToast(`${response.message}`);
     } else {
       alert('성공적으로 변경되었습니다.');
