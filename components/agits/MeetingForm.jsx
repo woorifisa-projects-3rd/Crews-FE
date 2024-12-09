@@ -1,33 +1,39 @@
 'use client';
 
-import { ButtonL } from '@/components/common';
+import { AddressFormField, ButtonL } from '@/components/common';
 import { Flex, Box, Text } from '@radix-ui/themes';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
-import { getMeetingForEdit } from '@/apis/agitsAPI';
+import { createMeeting, getMeetingForEdit, updateMeeting } from '@/apis/agitsAPI';
+import { useRouter } from 'next/navigation';
+import { deleteFileFromS3, getSignedS3Url, uploadFileToS3 } from '@/utils/s3utills';
+
 export default function MeetingForm({ agitId, meetingId, status }) {
+  const [existingFile, setExistingFile] = useState('');
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    control,
   } = useForm();
-  const { data: meeting } = useSWR(`agits/${agitId}/meetings/${meetingId}/edit`, async () => {
-    const response = await getMeetingForEdit(agitId, meetingId);
+  const { data: meeting } = useSWR(
+    status === 'edit' ? `agits/${agitId}/meetings/${meetingId}/edit` : null,
+    async () => {
+      if (status === 'edit') {
+        const response = await getMeetingForEdit(agitId, meetingId);
+        return response;
+      }
+      return null;
+    },
+  );
 
-    return response;
-  });
   if (meeting?.errorCode) {
     throw new Error(meeting.message);
   }
-  const onSubmit = async ({ name, image, date, place, content }) => {};
-  const [fileName, setFileName] = useState('');
-  useEffect(() => {
-    if (meeting?.image) {
-      setFileName(meeting.image);
-    }
-  }, [meeting]);
+  const router = useRouter();
+  const [fileName, setFileName] = useState(meeting?.image || '');
   const onFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -41,8 +47,62 @@ export default function MeetingForm({ agitId, meetingId, status }) {
       setValue('date', meeting.date);
       setValue('place', meeting.place);
       setValue('content', meeting.content);
+      if (meeting.image) {
+        setFileName(meeting.image); // 수정 상태에서 기존 파일명 설정
+      }
+      console.log('before data: ', meeting.date);
     }
   }, [meeting, setValue]);
+
+  const onSubmit = async (data) => {
+    console.log('submit data: ', data);
+    try {
+      // 기존 이미지 URL 저장
+      let imageUrl = existingFile;
+
+      // 새 파일이 선택된 경우
+      if (data.file) {
+        // 파일 형식 검증
+        if (!['image/png', 'image/jpeg'].includes(data.file.type)) {
+          alert('지원하지 않는 파일 형식입니다. png 또는 jpg 이미지만 업로드할 수 있습니다.');
+          return;
+        }
+
+        // 기존 파일 삭제 (필요한 경우)
+        if (existingFile) {
+          await deleteFileFromS3(existingFile, 'meeting');
+        }
+
+        // S3 업로드 처리
+        const { signedUrl, fileName } = await getSignedS3Url(data.file.type, 'meeting');
+        await uploadFileToS3(signedUrl, data.file);
+
+        // 새로 업로드된 파일 URL 업데이트
+        imageUrl = fileName;
+      }
+
+      const formData = {
+        name: data.name,
+        image: imageUrl,
+        date: data.date,
+        place: data.place,
+        content: data.content,
+      };
+      console.log('formed data:', formData);
+      if (status == 'edit') {
+        await updateMeeting(agitId, meetingId, formData);
+        router.push(`/service/agits/${agitId}/meetings`);
+        console.log('수정 완료');
+      } else {
+        await createMeeting(agitId, formData);
+        router.push(`/service/agits/${agitId}/meetings`);
+        console.log('등록 완료');
+      }
+    } catch (error) {
+      console.error('업데이트 중 오류 발생:', error);
+      alert('업데이트에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -125,7 +185,7 @@ export default function MeetingForm({ agitId, meetingId, status }) {
               </Text>
             )}
           </Box>
-          <Box className="row">
+          {/* <Box className="row">
             <Text as="label" className="require">
               모임 위치
             </Text>
@@ -133,6 +193,7 @@ export default function MeetingForm({ agitId, meetingId, status }) {
               <input
                 id="place"
                 type="text"
+                value="서울 관악구 신림동"
                 placeholder="모임 위치를 입력해주세요"
                 {...register('place', {
                   required: '모임 위치를 입력해주세요',
@@ -147,6 +208,30 @@ export default function MeetingForm({ agitId, meetingId, status }) {
                 {errors.place.message}
               </Text>
             )}
+          </Box> */}
+          <Box className="row">
+            <Controller
+              name="address"
+              control={control}
+              render={({ field }) => (
+                <AddressFormField
+                  value={field.value}
+                  onChange={(newAddress) => {
+                    const parts = [
+                      newAddress.siName !== '없음' ? newAddress.siName : null,
+                      newAddress.guName !== '없음' ? newAddress.guName : null,
+                      newAddress.dongName !== '없음' ? newAddress.dongName : null,
+                    ].filter(Boolean); // null 값 필터링
+
+                    const combinedPlace = parts.join(' ');
+
+                    field.onChange(newAddress);
+                    setValue('place', combinedPlace);
+                  }}
+                  // showToast={showToast}
+                />
+              )}
+            />
           </Box>
           <Box className="row">
             <Text as="label" className="require">

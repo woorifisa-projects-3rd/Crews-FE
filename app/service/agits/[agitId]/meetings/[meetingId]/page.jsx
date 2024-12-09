@@ -32,7 +32,11 @@ export default async function Page({ params }) {
                   <li>
                     <em>모임일시</em>
                     <Text as="p" size="2" weight="medium" className="gray_t1">
-                      {new Date(meeting.date).toLocaleString()}
+                      {new Date(meeting.date).toLocaleDateString()}{' '}
+                      {new Date(meeting.date).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </Text>
                   </li>
                   <li>

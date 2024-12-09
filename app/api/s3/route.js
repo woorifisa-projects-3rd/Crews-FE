@@ -45,7 +45,7 @@ export const POST = async (request) => {
       return NextResponse.json({ error: '지원하지 않는 파일 타입입니다. png 또는 jpg만 가능합니다.' }, { status: 400 });
     }
 
-    if (!['temps', 'profiles', 'feed'].includes(folder)) {
+    if (!['temps', 'profiles', 'feed', 'introduce', 'meeting'].includes(folder)) {
       console.error('잘못된 폴더 이름:', folder);
       return NextResponse.json({ error: '올바른 폴더 이름이 필요합니다. (temps, profiles, feed)' }, { status: 400 });
     }

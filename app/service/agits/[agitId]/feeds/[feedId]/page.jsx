@@ -1,14 +1,16 @@
-import { ButtonM, Header } from '@/components/common';
+import { Header } from '@/components/common';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import styles from './page.module.css';
 import { getFeed } from '@/apis/agitsAPI';
 import ReportHeartButton from '@/components/agits/ReportHeartButton';
+import EditDeleteButton from '@/components/agits/EditDeleteButton';
 
 export default async function Page({ params }) {
   const feed = await getFeed(params.agitId, params.feedId);
   if (feed?.errorCode) {
     throw new Error(feed.message);
   }
+  console.log('user: ', params);
 
   return (
     <div className="page">
@@ -32,14 +34,7 @@ export default async function Page({ params }) {
                 </Text>
                 <ReportHeartButton heart={feed.likeCount} agitId={params.agitId} feedId={params.feedId} />
               </Flex>
-              <ButtonM
-                leftButton={{
-                  as: 'link',
-                  href: `/service/agits/${params.agitId}/feeds/${params.feedId}/edit`,
-                  text: '수정',
-                }}
-                rightButton={{ text: '삭제' }}
-              />
+              <EditDeleteButton agitId={params.agitId} feedId={params.feedId} />
             </Flex>
           </section>
         </Box>

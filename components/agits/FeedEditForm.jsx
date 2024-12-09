@@ -3,12 +3,14 @@ import { Box, Flex, Text } from '@radix-ui/themes';
 import { ButtonL, Toast } from '../common';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { getFeedForEdit } from '@/apis/agitsAPI';
+import { getFeedForEdit, updateFeed } from '@/apis/agitsAPI';
 import useSWR from 'swr';
+import { useRouter } from 'next/navigation';
+import { deleteFileFromS3, getSignedS3Url, uploadFileToS3 } from '@/utils/s3utills';
 
 export default function FeedEditForm({ agitId, feedId }) {
+  const [existingFile, setExistingFile] = useState('');
   const {
     register,
     handleSubmit,
@@ -23,12 +25,45 @@ export default function FeedEditForm({ agitId, feedId }) {
   if (feed?.errorCode) {
     throw new Error(feed.message);
   }
-  //   const router = useRouter();
-  const onSubmit = async ({ image, content }) => {
-    showToast('수정되었습니다!');
-    setTimeout(() => {
-      router.back();
-    }, 1500);
+  const router = useRouter();
+  const onSubmit = async (data) => {
+    try {
+      // 기존 이미지 URL 저장
+      let imageUrl = existingFile;
+
+      // 새 파일이 선택된 경우
+      if (data.file) {
+        // 파일 형식 검증
+        if (!['image/png', 'image/jpeg'].includes(data.file.type)) {
+          alert('지원하지 않는 파일 형식입니다. png 또는 jpg 이미지만 업로드할 수 있습니다.');
+          return;
+        }
+
+        // 기존 파일 삭제 (필요한 경우)
+        if (existingFile) {
+          await deleteFileFromS3(existingFile, 'feed');
+        }
+
+        // S3 업로드 처리
+        const { signedUrl, fileName } = await getSignedS3Url(data.file.type, 'feed');
+        await uploadFileToS3(signedUrl, data.file);
+
+        // 새로 업로드된 파일 URL 업데이트
+        imageUrl = fileName;
+      }
+      const formData = {
+        image: imageUrl,
+        content: data.content,
+      };
+      await updateFeed(agitId, feedId, formData);
+      showToast('수정되었습니다!');
+      setTimeout(() => {
+        router.push(`/service/agits/${agitId}/feeds/${feedId}`);
+      }, 1500);
+    } catch (error) {
+      console.error('업데이트 중 오류 발생:', error);
+      alert('업데이트에 실패했습니다. 다시 시도해주세요.');
+    }
   };
   const [fileName, setFileName] = useState('');
   useEffect(() => {

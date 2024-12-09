@@ -7,9 +7,6 @@ import { useForm } from 'react-hook-form';
 import { reportFeed } from '@/apis/agitsAPI';
 
 export default function ModalToast({ isOpen, closeModal, agitId, feedId }) {
-  const handleDelete = () => {
-    console.log('삭제');
-  };
   const { toast, setToast, toastMessage, showToast } = useToast();
   const onSubmit = async (data) => {
     console.log('submit data: ', data);
@@ -17,9 +14,14 @@ export default function ModalToast({ isOpen, closeModal, agitId, feedId }) {
       content: data.report,
     };
     console.log('formed data: ', formData);
-    await reportFeed(agitId, feedId, formData);
-    closeModal();
-    showToast('신고가 완료되었습니다!');
+    const response = await reportFeed(agitId, feedId, formData);
+    if (response.errorCode === 'ALREADY_REPORTED_FEED') {
+      alert('이미 신고한 피드입니다.');
+      closeModal();
+    } else {
+      closeModal();
+      showToast('신고가 완료되었습니다!');
+    }
   };
   const {
     register,

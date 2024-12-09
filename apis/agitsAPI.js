@@ -180,17 +180,30 @@ export const getAllAgits = async () => {
 };
 
 // 아지트 정모 조회
-export const getAllMeetings = async (id) => {
-  const response = await instance.get(`agits/${id}/meetings`);
+export const getAllMeetings = async (agitId, page) => {
+  const response = await instance.get(`agits/${agitId}/meetings?page=${page}`);
   return response;
 };
-
+// 아지트 정모 추가
+export const createMeeting = async (agitId, data) => {
+  const response = await instance.post(`agits/${agitId}/meetings/create`, {
+    body: JSON.stringify({ ...data }),
+  });
+  return response;
+};
 // 아지트 정모 상세 조회
 export const getMeetingDetails = async (agitId, meetingId) => {
   const response = await instance.get(`agits/${agitId}/meetings/${meetingId}`);
   return response;
 };
 
+// 아지트 정모 수정
+export const updateMeeting = async (agitId, meetingId, data) => {
+  const response = await instance.patch(`agits/${agitId}/meetings/${meetingId}/edit`, {
+    body: JSON.stringify({ ...data }),
+  });
+  return response;
+};
 export const getMeetingForEdit = async (agitId, meetingId) => {
   const response = await instance.get(`agits/${agitId}/meetings/${meetingId}/edit`);
   return response;
@@ -202,9 +215,30 @@ export const getFeed = async (agitId, feedId) => {
   return response;
 };
 
+// 아지트 기록 추가
+export const createFeed = async (agitId, data) => {
+  const response = await instance.post(`agits/${agitId}/feeds`, {
+    body: JSON.stringify({ ...data }),
+  });
+  return response;
+};
+
 // 아지트 기록 수정
 export const getFeedForEdit = async (agitId, feedId) => {
   const response = await instance.get(`agits/${agitId}/feeds/${feedId}/edit`);
+  return response;
+};
+
+export const updateFeed = async (agitId, feedId, data) => {
+  const response = await instance.patch(`agits/${agitId}/feeds/${feedId}/edit`, {
+    body: JSON.stringify({ ...data }),
+  });
+  return response;
+};
+
+// 아지트 기록 삭제
+export const deleteFeed = async (agitId, feedId) => {
+  const response = await instance.delete(`agits/${agitId}/feeds/${feedId}`);
   return response;
 };
 // 아지트 기록 좋아요
@@ -234,6 +268,28 @@ export const getIntroducingForEdit = async (id) => {
 
 export const updateIntroducing = async (id, data) => {
   const response = await instance.patch(`agits/${id}/introducing/edit`, {
+    body: JSON.stringify({ ...data }),
+  });
+  return response;
+};
+
+// 아지트 관리
+export const agitManage = async (agitId) => {
+  const response = await instance.get(`agits/${agitId}/manage`);
+  return response;
+};
+
+// 아지트 관리 통장권한 관리
+export const accountAuthorization = async (agitId, data) => {
+  const response = await instance.post(`agits/${agitId}/manage/accounts`, {
+    body: JSON.stringify({ ...data }),
+  });
+  return response;
+};
+
+// 아지트 관리 가입신청 관리
+export const memberAuthorization = async (agitId, data) => {
+  const response = await instance.post(`agits/${agitId}/manage/members`, {
     body: JSON.stringify({ ...data }),
   });
   return response;

@@ -1,12 +1,35 @@
 'use client';
 import { Flex, Text } from '@radix-ui/themes';
 import styles from './ReportHeartButton.module.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ModalToast from './ModalToast';
 
 export default function ReportHeartButton({ heart, agitId, feedId }) {
   const [isLiked, setIsLiked] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    const savedLikes = JSON.parse(localStorage.getItem('likedFeeds')) || [];
+    setIsLiked(savedLikes.includes(`${agitId}-${feedId}`));
+  }, [agitId, feedId]);
+  const toggleLike = async () => {
+    const newLikedState = !isLiked;
+
+    setIsLiked(newLikedState);
+
+    // Local Storage에 좋아요 상태 저장
+    const savedLikes = JSON.parse(localStorage.getItem('likedFeeds')) || [];
+    if (newLikedState) {
+      savedLikes.push(`${agitId}-${feedId}`);
+    } else {
+      const index = savedLikes.indexOf(`${agitId}-${feedId}`);
+      if (index > -1) savedLikes.splice(index, 1);
+    }
+    localStorage.setItem('likedFeeds', JSON.stringify(savedLikes));
+
+    await fetch(`/api/${agitId}/feeds/${feedId}/heart`, {
+      method: 'POST',
+    });
+  };
   // const { data: heart } = useSWR(`agits/${agitId}/feeds/${feedId}/heart`, async () => {
   //   const response = await heartFeed(agitId, feedId);
 
@@ -24,12 +47,7 @@ export default function ReportHeartButton({ heart, agitId, feedId }) {
           신고하기
         </button>
         <Flex justify="between" gap="5px" className={styles.like_count}>
-          <button
-            onClick={(e) => {
-              console.log(e.target);
-              setIsLiked(!isLiked);
-            }}
-          >
+          <button onClick={toggleLike}>
             {isLiked ? (
               <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -46,9 +64,9 @@ export default function ReportHeartButton({ heart, agitId, feedId }) {
               </svg>
             )}
           </button>
-          <Text as="p" size="1" weight="medium" className="red">
+          {/* <Text as="p" size="1" weight="medium" className="red">
             {heart}
-          </Text>
+          </Text> */}
         </Flex>
       </Flex>
     </>

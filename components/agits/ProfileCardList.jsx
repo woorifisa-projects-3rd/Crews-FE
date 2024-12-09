@@ -4,9 +4,38 @@ import { ButtonM, Modal } from '../common';
 import styles from './ProfileCardList.module.css';
 import { useModal } from '@/hooks';
 import Image from 'next/image';
-export default function ProfileCardList({ status }) {
+import { accountAuthorization, memberAuthorization } from '@/apis/agitsAPI';
+
+export default function ProfileCardList({ agitId, status, members }) {
   const { isOpen: isMemberInOutOpen, openModal: openMemberInOutModal, closeModal: closeMemberInOutModal } = useModal();
   const { isOpen: isAccountUseOpen, openModal: openAccountUseModal, closeModal: closeAccountUseModal } = useModal();
+  const handleAcceptMember = async (member) => {
+    const formData = {
+      status: 'approve',
+      requestMemberId: member.id,
+    };
+    try {
+      await memberAuthorization(agitId, formData);
+      console.log('가입 신청 수락 완료');
+      closeMemberInOutModal();
+    } catch (error) {
+      console.error('가입 신청 수락 실패', error);
+    }
+  };
+
+  const handleAcceptAccount = async (member) => {
+    const formData = {
+      status: 'approve',
+      requestMemberId: member.id,
+    };
+    try {
+      await accountAuthorization(agitId, formData);
+      console.log('권한 부여 완료');
+      closeAccountUseModal();
+    } catch (error) {
+      console.error('권한 부여 실패', error);
+    }
+  };
   return (
     <>
       <Modal
@@ -18,7 +47,7 @@ export default function ProfileCardList({ status }) {
         footer={
           <ButtonM
             leftButton={{ text: '거부', onClick: closeMemberInOutModal }}
-            rightButton={{ text: '수락', onClick: closeMemberInOutModal }}
+            rightButton={{ text: '수락', onClick: () => handleAcceptMember({ id: agitId }) }}
           />
         }
       />
@@ -31,60 +60,42 @@ export default function ProfileCardList({ status }) {
         footer={
           <ButtonM
             leftButton={{ text: '거부', onClick: closeAccountUseModal }}
-            rightButton={{ text: '수락', onClick: closeAccountUseModal }}
+            rightButton={{ text: '수락', onClick: () => handleAcceptAccount({ id: agitId }) }}
           />
         }
       />
       <div className={styles.cardList}>
         <ul>
-          <li>
-            <Flex align="center" gap="20px">
-              <Box className={`${styles.img_box} img`}>
-                <Box className="img" style={{ backgroundImage: `url(/imgs/img_bg_profile.jpg)` }}>
-                  <Image src="/imgs/img_bg_profile.jpg" width={56} height={56} alt={`ㅇㅇㅇ 프로필 이미지`} />
+          {members.map((member) => (
+            <li key={member.id}>
+              <Flex align="center" gap="20px">
+                <Box className={`${styles.img_box} img`}>
+                  <Box
+                    className="img"
+                    style={{
+                      backgroundImage: `url(${member.profileImage || '/dev/imgs/img_bg_profile.jpg'})`,
+                    }}
+                  />
                 </Box>
-              </Box>
+                <Box direction="column" className={styles.txt}>
+                  <Text as="p" weight="bold">
+                    <span>{member.nickName}</span> 님
+                  </Text>
+                  <Text as="p" size="2" className="gray_t2">
+                    {member.email}
+                  </Text>
+                </Box>
 
-              <Box direction="column" className={styles.txt}>
-                <Text as="p" weight="bold">
-                  <span className="underline">홍길동-가나다라mav</span> 님
-                </Text>
-                <Text as="p" size="2" className="gray_t2">
-                  abc@naver.com
-                </Text>
-              </Box>
-              <button
-                className={`${styles.captain_btn} light`}
-                onClick={status === 'member' ? openMemberInOutModal : openAccountUseModal}
-              >
-                {status === 'member' ? '수락/거부' : '통장 권한 부여'}
-              </button>
-            </Flex>
-          </li>
-          <li>
-            <Flex align="center" gap="20px">
-              <Box className={`${styles.img_box} img`}>
-                <Box className="img" style={{ backgroundImage: `url(/imgs/img_bg_profile.jpg)` }}>
-                  <Image src="/imgs/img_bg_profile.jpg" width={56} height={56} alt={`dddd 프로필 이미지`} />
-                </Box>
-              </Box>
-              {/* <Image src="/imgs/img_bg_profile.jpg" width={56} height={56} /> */}
-              <Box direction="column" className={styles.txt}>
-                <Text as="p" weight="bold">
-                  <span>홍길동-가나다라mav</span> 님
-                </Text>
-                <Text as="p" size="2" className="gray_t2">
-                  abc@naver.com
-                </Text>
-              </Box>
-              <button
-                className={`${styles.captain_btn} light`}
-                onClick={status === 'member' ? openMemberInOutModal : openAccountUseModal}
-              >
-                {status === 'member' ? '수락/거부' : '통장 권한 부여'}
-              </button>
-            </Flex>
-          </li>
+                {/* 버튼 렌더링 */}
+                <button
+                  className={`${styles.captain_btn} light`}
+                  onClick={status === 'account' ? openAccountUseModal : openMemberInOutModal}
+                >
+                  {status === 'account' ? '통장 권한 부여' : '가입신청'}
+                </button>
+              </Flex>
+            </li>
+          ))}
         </ul>
       </div>
     </>

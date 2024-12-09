@@ -2,8 +2,15 @@ import { ButtonL, Title } from '@/components/common';
 import { Flex, Text } from '@radix-ui/themes';
 import ProfileCardList from '@/components/agits/ProfileCardList';
 import AgitHeader from '@/components/agits/AgitHeader';
+import { agitManage } from '@/apis/agitsAPI';
 
-export default function Page({ params }) {
+export default async function Page({ params }) {
+  const manage = await agitManage(params.agitId);
+  if (manage?.errorCode) {
+    throw new Error(manage.message);
+  }
+  console.log(manage);
+
   return (
     <div className="page">
       <AgitHeader currentId={params.agitId} />
@@ -13,17 +20,17 @@ export default function Page({ params }) {
             <Flex justify="between" align="center" wrap="wrap">
               <Title>멤버</Title>
               <Text as="p" size="2" weight="medium" className="gray_t1">
-                3명
+                {manage.advancedMember}명
               </Text>
             </Flex>
-            <ProfileCardList status="account" />
+            <ProfileCardList agitId={params.agitId} status="account" members={manage.advancedMembers} />
             <Flex direction="column" gap="10px">
-              <ButtonL as="link" href="/service/agits/1/setting/details" style="deep" size="3">
+              <ButtonL as="link" href={`/service/agits/${params.agitId}/setting/details`} style="deep" size="3">
                 더보기
               </ButtonL>
-              <Text align="center" size="2" className="gray_t2">
+              {/* <Text align="center" size="2" className="gray_t2">
                 아지트 탈퇴
-              </Text>
+              </Text> */}
             </Flex>
           </Flex>
         </section>
@@ -32,17 +39,17 @@ export default function Page({ params }) {
             <Flex justify="between" align="center" wrap="wrap">
               <Title>가입신청</Title>
               <Text as="p" size="2" weight="medium" className="gray_t1">
-                5명
+                {manage.requestedMember}명
               </Text>
             </Flex>
-            <ProfileCardList status="member" />
+            <ProfileCardList agitId={params.agitId} status="member" members={manage.requestedMembers} />
             <Flex direction="column" gap="10px">
-              <ButtonL as="link" href="/service/agits/1/setting/approve" style="deep" size="3">
+              <ButtonL as="link" href={`/service/agits/${params.agitId}/setting/approve`} style="deep" size="3">
                 더보기
               </ButtonL>
-              <Text align="center" size="2" className="gray_t2">
+              {/* <Text align="center" size="2" className="gray_t2">
                 아지트 해체
-              </Text>
+              </Text> */}
             </Flex>
           </Flex>
         </section>

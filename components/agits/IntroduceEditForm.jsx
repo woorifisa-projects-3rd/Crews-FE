@@ -6,10 +6,11 @@ import { getIntroducingForEdit, updateIntroducing } from '@/apis/agitsAPI';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
+import { deleteFileFromS3, getSignedS3Url, uploadFileToS3 } from '@/utils/s3utills';
 
 export default function IntroduceEditForm({ agitId }) {
   const [isClient, setIsClient] = useState(false);
-
+  const [existingFile, setExistingFile] = useState('');
   const {
     register,
     handleSubmit,
@@ -21,18 +22,12 @@ export default function IntroduceEditForm({ agitId }) {
   const { data: introducing } = useSWR(`agits/${agitId}/introducing/edit`, async () => {
     const response = await getIntroducingForEdit(agitId);
     console.log('get data:', response);
-
     return response;
   });
   if (introducing?.errorCode) {
     throw new Error(introducing.message);
   }
-  const [fileName, setFileName] = useState('');
-  useEffect(() => {
-    if (introducing?.image) {
-      setFileName(introducing.image);
-    }
-  }, [introducing]);
+  const [fileName, setFileName] = useState(introducing?.image || '');
   const onFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -58,6 +53,10 @@ export default function IntroduceEditForm({ agitId }) {
         setSelectedInterests(interestIds);
         setValue('interests', interestIds);
       }
+      if (introducing.image) {
+        setFileName(introducing.image);
+        setExistingFile(introducing.image); // 기존 파일 저장
+      }
     }
   }, [introducing, setValue]);
   const router = useRouter();
@@ -65,27 +64,50 @@ export default function IntroduceEditForm({ agitId }) {
     setIsClient(true);
   }, []);
   const onSubmit = async (data) => {
-    console.log('Submitted data:', data);
-    const formData = {
-      introduce: data.introduce,
-      content: data.content,
-      interests: data.interests,
-      image: data.file.name,
-    };
-    console.log('formed data:', formData);
-
     try {
-      const introducingData = await updateIntroducing(agitId, formData);
+      // 기존 이미지 URL 저장
+      let imageUrl = existingFile;
 
-      console.log('Server Response:', introducingData);
+      // 새 파일이 선택된 경우
+      if (data.file) {
+        // 파일 형식 검증
+        if (!['image/png', 'image/jpeg'].includes(data.file.type)) {
+          alert('지원하지 않는 파일 형식입니다. png 또는 jpg 이미지만 업로드할 수 있습니다.');
+          return;
+        }
 
-      if (introducingData.success) {
-        router.push(`/service/agits/${agitId}/introduce`);
-      } else {
-        console.error('Failed to update introducing data.');
+        // 기존 파일 삭제 (필요한 경우)
+        if (existingFile) {
+          await deleteFileFromS3(existingFile, 'introduce');
+        }
+
+        // S3 업로드 처리
+        const { signedUrl, fileName } = await getSignedS3Url(data.file.type, 'introduce');
+        await uploadFileToS3(signedUrl, data.file);
+
+        // 새로 업로드된 파일 URL 업데이트
+        imageUrl = fileName;
       }
+
+      // 제출할 데이터 준비
+      const formData = {
+        introduce: data.introduce,
+        content: data.content,
+        interests: data.interests,
+        image: imageUrl, // 업로드된 이미지 URL을 포함
+      };
+
+      console.log('Formed data:', formData);
+
+      // 백엔드에 데이터 업데이트 요청
+      await updateIntroducing(agitId, formData);
+
+      // 성공 시 페이지 이동
+      alert('수정이 완료되었습니다.');
+      router.push(`/service/agits/${agitId}/introduce`);
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('업데이트 중 오류 발생:', error);
+      alert('업데이트에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
