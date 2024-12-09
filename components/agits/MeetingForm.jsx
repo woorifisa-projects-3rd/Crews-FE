@@ -3,16 +3,31 @@
 import { ButtonL } from '@/components/common';
 import { Flex, Box, Text } from '@radix-ui/themes';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
-export default function MeetingForm({ status }) {
+import { useEffect, useState } from 'react';
+import useSWR from 'swr';
+import { getMeetingForEdit } from '@/apis/agitsAPI';
+export default function MeetingForm({ agitId, meetingId, status }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
   } = useForm();
+  const { data: meeting } = useSWR(`agits/${agitId}/meetings/${meetingId}/edit`, async () => {
+    const response = await getMeetingForEdit(agitId, meetingId);
+
+    return response;
+  });
+  if (meeting?.errorCode) {
+    throw new Error(meeting.message);
+  }
   const onSubmit = async ({ name, image, date, place, content }) => {};
   const [fileName, setFileName] = useState('');
+  useEffect(() => {
+    if (meeting?.image) {
+      setFileName(meeting.image);
+    }
+  }, [meeting]);
   const onFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -20,6 +35,14 @@ export default function MeetingForm({ status }) {
       setValue('file', file);
     }
   };
+  useEffect(() => {
+    if (meeting) {
+      setValue('name', meeting.name);
+      setValue('date', meeting.date);
+      setValue('place', meeting.place);
+      setValue('content', meeting.content);
+    }
+  }, [meeting, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -115,6 +138,7 @@ export default function MeetingForm({ status }) {
                   required: '모임 위치를 입력해주세요',
                 })}
                 className={errors.place ? 'error' : ''}
+                readOnly
               />
               <button type="button">주소 검색</button>
             </Box>

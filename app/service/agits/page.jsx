@@ -2,7 +2,11 @@ import { Header, Title } from '@/components/common';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import Image from 'next/image';
 
-export default function Agits() {
+export default async function Agits() {
+  const allAgits = await getAllAgits();
+  if (allAgits?.errorCode) {
+    throw new Error(allAgits.message);
+  }
   return (
     <div className="page">
       <Header>아지트</Header>

@@ -4,10 +4,29 @@ import { ImageCard, Title, ButtonS } from '@/components/common';
 import { agitsSelectMenuList } from '@/constants/selectMenuList/sample';
 import { Box, Flex } from '@radix-ui/themes';
 import AgitHeader from '@/components/agits/AgitHeader';
+import { useState } from 'react';
+import { getAllMeetings } from '@/apis/agitsAPI';
 
 export default function Page({ params }) {
   const [agits] = agitsSelectMenuList.filter((select) => select.id == params.agitId);
+  const [meetings, setMeetings] = useState([]);
 
+  useEffect(() => {
+    const fetchMeetings = async () => {
+      try {
+        const response = await getAllMeetings(params.agitId);
+        setMeetings(response.data.meetings);
+      } catch (error) {
+        console.error('failed to fetch meetings', error);
+      }
+    };
+    if (agits) {
+      fetchMeetings();
+    }
+  }, [params.agitId, agits]);
+  if (!agits) {
+    return <div>Agit not found</div>;
+  }
   return (
     <div className="page">
       <AgitHeader currentId={params.agitId} />
@@ -20,123 +39,23 @@ export default function Page({ params }) {
             </Flex>
             <Box>
               <Flex direction="column" gap="10px">
-                <ImageCard
-                  type="meeting"
-                  data={{
-                    id: 101,
-                    name: 'Sample1',
-                    image: '/dev/img_introduce.jpg',
-                    introduction: 'This is a sample1 meeting.',
-                    place: 'Seoul',
-                    date: '2024-12-01',
-                  }}
-                  dynamicId={agits.id}
-                />
-                <ImageCard
-                  type="meeting"
-                  data={{
-                    id: 102,
-                    name: 'Sample2',
-                    image: '/dev/img_introduce.jpg',
-                    introduction: 'This is a sample2 meeting.',
-                    place: 'Seoul',
-                    date: '2025-01-01',
-                  }}
-                  dynamicId={agits.id}
-                />
-                <ImageCard
-                  type="meeting"
-                  data={{
-                    id: 103,
-                    name: 'Sample3',
-                    image: '/dev/img_introduce.jpg',
-                    introduction: 'This is a sample3 meeting.',
-                    place: 'Seoul',
-                    date: '2025-02-01',
-                  }}
-                  dynamicId={agits.id}
-                />
-                <ImageCard
-                  type="meeting"
-                  data={{
-                    id: 104,
-                    name: 'Sample4',
-                    image: '/dev/img_introduce.jpg',
-                    introduction: 'This is a sample4 meeting.',
-                    place: 'Seoul',
-                    date: '2025-03-01',
-                  }}
-                  dynamicId={agits.id}
-                />
-                <ImageCard
-                  type="meeting"
-                  data={{
-                    id: 105,
-                    name: 'Sample5',
-                    image: '/dev/img_introduce.jpg',
-                    introduction: 'This is a sample5 meeting.',
-                    place: 'Seoul',
-                    date: '2025-04-01',
-                  }}
-                  dynamicId={agits.id}
-                />
-                <ImageCard
-                  type="meeting"
-                  data={{
-                    id: 106,
-                    name: 'Sample6',
-                    image: '/dev/img_introduce.jpg',
-                    introduction: 'This is a sample6 meeting.',
-                    place: 'Seoul',
-                    date: '2025-05-01',
-                  }}
-                  dynamicId={agits.id}
-                />
-                <ImageCard
-                  type="meeting"
-                  data={{
-                    id: 107,
-                    name: 'Sample7',
-                    image: '/dev/img_introduce.jpg',
-                    introduction: 'This is a sample7 meeting.',
-                    place: 'Seoul',
-                    date: '2026-04-01',
-                  }}
-                  dynamicId={agits.id}
-                />
-                <ImageCard
-                  type="meeting"
-                  data={{
-                    id: 108,
-                    name: 'Sample8',
-                    image: '/dev/img_introduce.jpg',
-                    introduction: 'This is a sample8 meeting.',
-                    place: 'Seoul',
-                    date: '2027-02-01',
-                  }}
-                  dynamicId={agits.id}
-                />
-                <ImageCard
-                  type="meeting"
-                  data={{
-                    id: 109,
-                    name: 'Sample9',
-                    image: '/dev/img_introduce.jpg',
-                    introduction: 'This is a sample9 meeting.',
-                    place: 'Seoul',
-                    date: '2027-12-01',
-                  }}
-                  dynamicId={agits.id}
-                />
+                {meetings.map((meeting) => (
+                  <ImageCard
+                    key={meeting.id}
+                    type="meeting"
+                    date={{
+                      id: meeting.id,
+                      name: meeting.regularName,
+                      image: meeting.image,
+                      introduction: meeting.content,
+                      place: meeting.place,
+                      date: meeting.regularTime,
+                    }}
+                    dynamicId={agits.id}
+                  />
+                ))}
               </Flex>
             </Box>
-            {/* <Box>
-              <Flex direction="column" gap="10px">
-                {events.map((event, i) => {
-                  return <ImageCard type="event" data={event} key={`event${i}`}></ImageCard>;
-                })}
-              </Flex>
-            </Box> */}
           </Flex>
         </section>
       </Flex>
