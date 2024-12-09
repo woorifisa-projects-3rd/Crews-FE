@@ -186,7 +186,7 @@ export const getAllMeetings = async (id) => {
 };
 
 // 아지트 정모 상세 조회
-export const getMeeting = async (agitId, meetingId) => {
+export const getMeetingDetails = async (agitId, meetingId) => {
   const response = await instance.get(`agits/${agitId}/meetings/${meetingId}`);
   return response;
 };

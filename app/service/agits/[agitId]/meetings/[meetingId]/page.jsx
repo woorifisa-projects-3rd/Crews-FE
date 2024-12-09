@@ -1,11 +1,11 @@
 import { Title, ButtonL } from '@/components/common';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import AgitHeader from '@/components/agits/AgitHeader';
-import { getMeeting } from '@/apis/agitsAPI';
+import { getMeetingDetails } from '@/apis/agitsAPI';
 
 export default async function Page({ params }) {
   console.log(params.agitId, params.meetingId);
-  const meeting = await getMeeting(params.agitId, params.meetingId);
+  const meeting = await getMeetingDetails(params.agitId, params.meetingId);
   // ssr 에서만 하는 에러처리
   if (meeting?.errorCode) {
     throw new Error(meeting.message);
