@@ -7,7 +7,6 @@ import { ButtonM, ButtonS, Modal, Title } from '../common';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import Image from 'next/image';
 import styles from './FeedList.module.css';
-import { feeds } from '@/constants/dummy';
 import Link from 'next/link';
 import { createFeed, getFeeds } from '@/apis/agitsAPI';
 import { deleteFileFromS3, getSignedS3Url, uploadFileToS3 } from '@/utils/s3utills';
@@ -16,7 +15,6 @@ import { date } from '@/utils/date';
 
 export default function FeedList({ agitId }) {
   const [feeds, setFeeds] = useState([]);
-  const [isLiked, setIsLiked] = useState(false);
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
