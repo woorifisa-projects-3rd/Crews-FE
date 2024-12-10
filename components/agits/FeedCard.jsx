@@ -1,6 +1,7 @@
 import { getFeed } from '@/apis/agitsAPI';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import styles from './FeedCard.module.css';
+import Image from 'next/image';
 
 export default async function FeedCard({ params }) {
   const feed = await getFeed(params.agitId, params.feedId);
@@ -14,7 +15,10 @@ export default async function FeedCard({ params }) {
         <Flex direction="column" gap="20px">
           <Box className="img_box">
             <div className="img">
-              <img src={feed.image || '/dev/img_introduce.jpg'} alt={feed.name} />
+              <Image
+                src={`https://djogyo1sj025q.cloudfront.net/${feed.image}` || '/imgs/img_bg_feed.jpg'}
+                alt={feed.name}
+              />
             </div>
           </Box>
           <Flex direction="column" gap="10px">

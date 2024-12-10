@@ -2,6 +2,7 @@ import { Label, Title, ButtonL } from '@/components/common';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import AgitHeader from '@/components/agits/AgitHeader';
 import { getIntroducing } from '@/apis/agitsAPI';
+import Image from 'next/image';
 
 export default async function Page({ params }) {
   const introducing = await getIntroducing(params.agitId);
@@ -23,7 +24,7 @@ export default async function Page({ params }) {
             <Flex direction="column" gap="20px">
               <Box className="img_box">
                 <div className="img">
-                  <img
+                  <Image
                     src={`https://djogyo1sj025q.cloudfront.net/${introducing.image}` || '/dev/img_introduce.jpg'}
                     alt={introducing.agitName}
                   />

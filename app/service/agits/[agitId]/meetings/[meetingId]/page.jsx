@@ -2,6 +2,7 @@ import { Title, ButtonL } from '@/components/common';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import AgitHeader from '@/components/agits/AgitHeader';
 import { getMeetingDetails } from '@/apis/agitsAPI';
+import Image from 'next/image';
 
 export default async function Page({ params }) {
   console.log(params.agitId, params.meetingId);
@@ -23,7 +24,7 @@ export default async function Page({ params }) {
             </ButtonL>
             <Box className="img_box">
               <div className="img">
-                <img src={meeting.image || '/dev/img_introduce.jpg'} alt={meeting.name} />
+                <Image src={meeting.image || '/dev/img_introduce.jpg'} alt={meeting.name} />
               </div>
             </Box>
             <Box className="info_list">

@@ -42,8 +42,9 @@ export default function FeedList({ agitId }) {
 
       // 중복 제거 로직
       setFeeds((prev) => {
-        const existingIds = new Set(prev.map((feed) => feed.id));
-        const uniqueFeeds = newFeeds.filter((feed) => !existingIds.has(feed.id));
+        const existingIds = {};
+        prev.forEach((feed) => (existingIds[feed.id] = true));
+        const uniqueFeeds = newFeeds.filter((feed) => !existingIds[feed.id]);
         return [...prev, ...uniqueFeeds];
       });
 
@@ -213,7 +214,7 @@ export default function FeedList({ agitId }) {
                             src={`https://djogyo1sj025q.cloudfront.net/${feed.image}` || '/imgs/img_bg_feed.jpg'}
                             width={190}
                             height={147}
-                            alt={`${feed.title} 이미지`}
+                            alt={`${feed.content} 이미지`}
                           />
                           {/* <button
                             onClick={(e) => {
