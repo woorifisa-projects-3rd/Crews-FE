@@ -36,8 +36,9 @@ export default function MeetingCard({ agitId }) {
 
       // 중복 제거 로직
       setMeetings((prev) => {
-        const existingIds = new Set(prev.map((meeting) => meeting.id));
-        const uniqueMeetings = newMeetings.filter((meeting) => !existingIds.has(meeting.id));
+        const existingIds = {};
+        prev.forEach((meeting) => (existingIds[meeting.id] = true));
+        const uniqueMeetings = newMeetings.filter((meeting) => !existingIds[meeting.id]);
         return [...prev, ...uniqueMeetings];
       });
 
