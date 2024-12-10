@@ -7,6 +7,7 @@ import { ButtonL, Modal } from '@/components/common';
 import { generateAccount } from '@/apis/agitsAPI';
 import { useModal } from '@/hooks';
 import { useState } from 'react';
+import { CDN_URL } from '@/constants/auth';
 
 export default function DepositProduct({ agitId, product }) {
   const { isOpen, openModal, closeModal } = useModal();
@@ -82,11 +83,16 @@ export default function DepositProduct({ agitId, product }) {
       <li>
         <Card>
           <Flex gap="10px" direction="row">
-            <Box className={styles.img_box}>
-              <div className={`${styles.img} img`}>
-                <Image src={product.bankImage} width={30} height={30} alt={`${product.bankName} 이미지`} />
+            <div className={styles.img_box}>
+              <div
+                className={`${styles.img} back_img ${product.bankImage == null ? styles.blank : ''}`}
+                style={{
+                  backgroundImage: `url(${product.bankImage == null || product.bankImage == '' ? '/imgs/img_bg_bank.jpg' : CDN_URL + product.bankImage})`,
+                }}
+              >
+                <Image src="/imgs/img_bg_bank.jpg" width={30} height={30} alt={`${product.bankName} 이미지`} />
               </div>
-            </Box>
+            </div>
             <Flex direction="column" gap="10px" className={styles.txt_box}>
               <Box className={styles.top}>
                 <em>{product.productName}</em>

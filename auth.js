@@ -95,15 +95,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session;
     },
-    async redirect({ url, baseUrl, session }) {
-      if (session?.role) {
-        if (session.role == 'ROLE_ADMIN') {
-          return `${baseUrl}/admin`;
-        } else if (session.role === 'ROLE_USER') {
-          return `${baseUrl}/service`;
-        }
-      }
-
+    async redirect({ url, baseUrl }) {
       return baseUrl;
     },
   },

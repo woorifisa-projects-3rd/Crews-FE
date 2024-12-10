@@ -6,16 +6,16 @@ import { Callout, Flex, Text } from '@radix-ui/themes';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import useSWR from 'swr';
 import { getAgitIntroducing, getAgitMeetings } from '@/apis/searchAPI';
-import { BASE_URL } from '@/constants/auth';
 import { getAddressValue } from '@/utils/address';
+import Image from 'next/image';
 
 export default function ApplyModalContent({ agitId }) {
-  const { data: introducingData } = useSWR(`${BASE_URL}agits/${agitId}/introducing`, async () => {
+  const { data: introducingData } = useSWR(`agits/${agitId}/introducing`, async () => {
     const response = await getAgitIntroducing(agitId);
     return response;
   });
 
-  const { data: meetingsData } = useSWR(`${BASE_URL}agits/${agitId}/meetings/recent`, async () => {
+  const { data: meetingsData } = useSWR(`agits/${agitId}/meetings/recent`, async () => {
     const response = await getAgitMeetings(agitId);
     return response;
   });
@@ -25,7 +25,7 @@ export default function ApplyModalContent({ agitId }) {
       <div className={styles.img_box}>
         <div className="img">
           {introducingData?.image == '' || introducingData?.image == null ? (
-            <img src="/imgs/dev/img_apply.jpg" />
+            <Image src="/imgs/dev/img_apply.jpg" width={420} height={300} alt="소개 이미지가 존재하지 않습니다." />
           ) : (
             <img src={introducingData.image} />
           )}

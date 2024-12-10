@@ -20,7 +20,7 @@ export default async function Agits() {
                 <Image src="/imgs/img_empty.png" width={130} height={130} alt="가입한 아지트 없음" />
               </Box>
               <Box className="txt_box" align="center">
-                <Title>어쩌고저쩌고</Title>
+                <Title>크루 모집중</Title>
                 <Box mt="15px">
                   <Text as="p" size="2" weight="medium" className="gray_t2">
                     앗! 가입한 모임이 없어요. <i className="dpb"></i>

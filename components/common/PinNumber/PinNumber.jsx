@@ -12,6 +12,7 @@ import { useSignupStore } from '@/stores/authStore';
 import { signUp } from '@/apis/authAPI';
 import { payCrewFee, updatePinNumber, verifyPinNumber } from '@/apis/mypageAPI';
 import { transfer } from '@/apis/agitsAPI';
+import { getQRCode } from '@/apis/paymentAPI';
 
 export default function PinNumber({ defaultStage, defaultStatus, data, closeModal, callback }) {
   // 입력값 관리
@@ -175,6 +176,7 @@ export default function PinNumber({ defaultStage, defaultStatus, data, closeModa
     if (stage == 'auth') {
       if (status == 'transferMyage') {
         // 마이페이지 이체 로직
+        setIsLoading(true);
         const agitId = data.agitId;
         const crewAccountId = data.crewAccountId;
         const myAccountId = data.myAccountId;
@@ -183,10 +185,12 @@ export default function PinNumber({ defaultStage, defaultStatus, data, closeModa
         if (response?.errorCode) {
           if (callback) {
             callback(false, response.message);
+            setIsLoading(false);
           }
         } else {
           if (callback) {
             callback(true, '성공적으로 이체되었습니다.', crewAccountId, myAccountId);
+            setIsLoading(false);
           }
         }
       }
@@ -205,7 +209,14 @@ export default function PinNumber({ defaultStage, defaultStatus, data, closeModa
         return;
       }
       if (status == 'payment') {
-        // 결제 로직
+        const agitId = data;
+        const response = await getQRCode({ agitId, pinNumber });
+        if (response.error) {
+          showToast(response.error);
+          return;
+        }
+        callback({ ...response, pinNumber });
+        closeModal();
       }
     }
   };
@@ -292,7 +303,7 @@ export default function PinNumber({ defaultStage, defaultStatus, data, closeModa
             {stage == 'auth' && status != 'error' && (
               <ButtonM
                 leftButton={{ type: 'button', text: '재입력', onClick: handleReset }}
-                rightButton={{ type: 'submit', text: '확인' }}
+                rightButton={{ type: 'submit', text: '확인', isLoading }}
               />
             )}
           </Box>

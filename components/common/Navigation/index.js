@@ -1,3 +1,4 @@
-import Navigation from './Navigation';
+import NavigationService from './NavigationService';
+import NavigationAdmin from './NavigationAdmin';
 
-export { Navigation };
+export { NavigationService, NavigationAdmin };

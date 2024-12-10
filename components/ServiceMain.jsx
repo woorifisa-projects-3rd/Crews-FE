@@ -14,10 +14,11 @@ import styles from './ServiceMain.module.css';
 export default function ServiceMain() {
   const { isOpen, openModal, closeModal } = useModal();
   const { toast, setToast, toastMessage, showToast } = useToast();
-  const { data: recruitNewAgits, isLoading: recruitNewLoading } = useSWR(
-    `agits/home`,
-    async () => await getRecruitNewAgits(),
-  );
+  const {
+    data: recruitNewAgits,
+    isLoading: recruitNewLoading,
+    mutate: recruitNewMutate,
+  } = useSWR(`agits/home`, async () => await getRecruitNewAgits());
 
   if (recruitNewAgits?.errorCode) {
     showToast(recruitNewAgits.message);
@@ -86,6 +87,7 @@ export default function ServiceMain() {
     setData((prev) => prev.filter((item) => item.id !== agitId));
 
     alert('가입 신청이 완료되었습니다.');
+    recruitNewMutate();
     closeModal();
   };
 

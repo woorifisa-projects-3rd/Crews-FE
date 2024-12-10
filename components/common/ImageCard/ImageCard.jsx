@@ -2,6 +2,7 @@ import { Box, Card, Flex, Text } from '@radix-ui/themes';
 import styles from './ImageCard.module.css';
 import Image from 'next/image';
 import Link from 'next/link';
+import { CDN_URL } from '@/constants/auth';
 
 export default function ImageCard({ as = 'link', type = 'agits', data, dynamicId, onClick }) {
   const isAgit = type == 'agits';
@@ -12,11 +13,7 @@ export default function ImageCard({ as = 'link', type = 'agits', data, dynamicId
           <Box
             className={`back_img ${data.image ? '' : styles.blank}`}
             style={{
-              backgroundImage: `url(${
-                data?.image == null || data?.image === ''
-                  ? '/imgs/img_bg_card.jpg'
-                  : `https://djogyo1sj025q.cloudfront.net/${data?.image}`
-              })`,
+              backgroundImage: `url(${data?.image == null || data?.image == '' ? '/imgs/img_bg_card.jpg' : CDN_URL + data?.image})`,
             }}
           >
             <Image src="/imgs/img_bg_card.jpg" width={65} height={65} alt={`${data.name} 소개 이미지`} />

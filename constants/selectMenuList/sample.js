@@ -30,8 +30,8 @@ export const tranTypeSelectMenuList = [
 ];
 
 export const orderSelectMenuList = [
-  { text: '최신순', params: 'ASC' },
-  { text: '오래된순', params: 'DESC' },
+  { text: '최신순', params: 'DESC' },
+  { text: '오래된순', params: 'ASC' },
 ];
 
 export const daySelectMenuList = [

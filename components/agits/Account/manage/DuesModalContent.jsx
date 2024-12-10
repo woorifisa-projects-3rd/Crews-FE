@@ -6,10 +6,10 @@ import { ButtonM, SelectFilter } from '@/components/common';
 import { daySelectMenuList } from '@/constants/selectMenuList/sample';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
-import { setCommonDues } from '@/apis/agitsAPI';
+import { callDuesChange, setCommonDues } from '@/apis/agitsAPI';
 import DuesCheckBox from './DuesCheckbox';
 
-export default function DuesModalContent({ agitId, closeModal }) {
+export default function DuesModalContent({ agitId, closeModal, yearAndMonth }) {
   const [formattedValue, setFormattedValue] = useState('');
   const [selectedDay, setSelectedDay] = useState(1);
   const [isChecked, setIsChecked] = useState(true);
@@ -48,7 +48,17 @@ export default function DuesModalContent({ agitId, closeModal }) {
       console.log(response.message);
       alert('에러가 발생했습니다. 다시 실행 해 주세요.');
     }
+
     closeModal();
+
+    const duesData = {
+      memberId: [],
+      duesAmount: data.user_dueAmount,
+      year: yearAndMonth?.year,
+      month: yearAndMonth?.month,
+      dueDay: selectedDay,
+    };
+    await callDuesChange(agitId, duesData);
   };
   const handleNumberChange = (e) => {
     let input = e.target.value;

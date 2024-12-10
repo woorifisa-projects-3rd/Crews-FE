@@ -1,0 +1,16 @@
+.table table {
+  text-align: center;
+}
+.table .btn_detail {
+  display: block;
+  width: 100px;
+  height: 30px;
+  font-size: 14px;
+  font-weight: 700;
+  background-color: var(--crimson-1);
+  border-radius: 15px;
+}
+
+.table .svg svg {
+  color: green;
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { ButtonL, ButtonM, Title, Modal } from '@/components/common';
+import { ButtonL, ButtonM, Title, Modal, PinNumber, Toast } from '@/components/common';
 import CardInfo from '@/components/payment/CardInfo';
 import { Box, Card, Flex, Text } from '@radix-ui/themes';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -8,38 +8,63 @@ import 'swiper/css';
 import 'swiper/css/effect-cards';
 import { EffectCards } from 'swiper/modules';
 import styles from './PaymentMain.module.css';
-import { useState, useEffect } from 'react';
-import { cardLists } from '@/constants/dummy';
+import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
-import useModal from '@/hooks/useModal';
+import { useModal, useToast } from '@/hooks';
 import { useNavVisible } from '@/hooks/useNavVisible';
+import { getQRCode, getPaymentResult, requestAccountAuthority } from '@/apis/paymentAPI';
+import { useRouter } from 'next/navigation';
 
-export default function PaymentMain() {
+export default function PaymentMain({ paymentData }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [agitInfo, setAgitInfo] = useState({ name: '', cardName: '', cardCode: '', agitRole: false });
+  const [agitInfo, setAgitInfo] = useState({ name: '', cardName: '', cardCode: '', agitRole: false, qrCode: '' });
   const [paymentActivation, setPaymentActivation] = useState(false);
   const { isOpen, openModal, closeModal } = useModal();
-  const [timeLeft, setTimeLeft] = useState(10);
+  const { isOpen: pinIsOpen, openModal: pinOpenModal, closeModal: pinCloseModal } = useModal();
+  const [timeLeft, setTimeLeft] = useState(5);
+  const router = useRouter();
+  const { toast, setToast, toastMessage, showToast } = useToast();
+
   useNavVisible(false);
-  // 타이머 동작 로직
+
+  // 타이머 동작 및 결제 상태 확인 로직
   useEffect(() => {
     let timer;
     if (paymentActivation) {
-      timer = setInterval(() => {
+      timer = setInterval(async () => {
         setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+        const response = await getPaymentResult(paymentData[activeIndex].agitId);
+        if (response?.data !== null) {
+          setPaymentActivation(false);
+          setTimeLeft(5);
+          return clearInterval(timer); // 타이머 중단
+        } else if (timeLeft == 0) {
+          return clearInterval(timer); // 타이머 중단
+        }
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [paymentActivation]);
+  }, [paymentActivation, activeIndex, paymentData]);
 
   useEffect(() => {
-    const currentCard = cardLists[activeIndex];
-    if (currentCard) {
+    const currentCard = paymentData[activeIndex];
+    if (currentCard && (currentCard.agitRole === 'LEADER' || currentCard.agitRole === 'STAFF')) {
       setAgitInfo({
         name: currentCard.name,
         cardName: currentCard.cardName,
         cardCode: currentCard.cardCode,
-        agitRole: currentCard.agitRole,
+        agitRole: true,
+        qrCode: '',
+        pinNumber: '',
+      });
+    } else if ((currentCard && currentCard.agitRole === 'MEMBER') || currentCard.agitRole === 'ADVENCED') {
+      setAgitInfo({
+        name: currentCard.name,
+        cardName: currentCard.cardName,
+        cardCode: currentCard.cardCode,
+        agitRole: false,
+        qrCode: '',
+        pinNumber: '',
       });
     }
   }, [activeIndex]);
@@ -48,28 +73,79 @@ export default function PaymentMain() {
     setActiveIndex(swiper.activeIndex);
   };
 
-  const handleClickPayment = () => {
+  const handleClickPayment = async (response) => {
+    // const response = await getQRCode();
+    setAgitInfo({ ...agitInfo, qrCode: response.qrCode, pinNumber: response.pinNumber });
     setPaymentActivation(true);
-    setTimeLeft(10); // 타이머 초기화
+    setTimeLeft(5); // 타이머 초기화
     closeModal(); // 모달 닫기
   };
 
-  const handleClickReset = () => {
+  const handleClickReset = async () => {
     if (timeLeft === 0) {
-      // 시간이 초과된 경우 타이머를 다시 초기화
-      setTimeLeft(10);
+      // 시간이 초과된 경우 타이머를 다시 초기화\
+      const response = await getQRCode({ agitId: paymentData[activeIndex].agitId, pinNumber: agitInfo.pinNumber });
+      setAgitInfo({ ...agitInfo, qrCode: response.qrCode });
+      setTimeLeft(5);
       setPaymentActivation(true); // 결제 활성화 상태 유지
     } else {
       // 결제 취소
+      setAgitInfo({ ...agitInfo, qrCode: '' });
       setPaymentActivation(false);
-      setTimeLeft(10); // 타이머 초기화
+      setTimeLeft(5); // 타이머 초기화
       setActiveIndex(0);
     }
   };
 
+  const handleModal = () => {
+    closeModal();
+    pinOpenModal();
+  };
+
+  const handleCreateCard = () => {
+    router.push(`/service/agits/${agitInfo.agitId}`);
+  };
+
+  const handleAccountAuthority = async () => {
+    await requestAccountAuthority(paymentData[activeIndex].agitId);
+    closeModal();
+    showToast('모임통장 권한이 요청되었습니다.');
+  };
+
   return (
     <>
-      {agitInfo.agitRole == true && cardLists[activeIndex].cardName !== '' ? (
+      <Toast
+        as="info"
+        isActive={toast}
+        onClose={() => {
+          setToast(false);
+        }}
+      >
+        {toastMessage}
+      </Toast>
+      <Modal
+        isOpen={pinIsOpen}
+        closeModal={pinCloseModal}
+        header={{
+          title: (
+            <>
+              <span className="underline">PIN번호를 인증</span>해 주세요.
+            </>
+          ),
+          text: '정확히 일치해야 합니다.',
+        }}
+      >
+        <Suspense>
+          <PinNumber
+            defaultStage={'auth'}
+            defaultStatus={'payment'}
+            data={paymentData[activeIndex].agitId}
+            callback={handleClickPayment}
+            closeModal={pinCloseModal}
+          />
+        </Suspense>
+      </Modal>
+      {agitInfo.agitRole && paymentData[activeIndex].cardName !== '' ? (
         <Modal
           isOpen={isOpen}
           closeModal={closeModal}
@@ -77,24 +153,24 @@ export default function PaymentMain() {
           footer={
             <ButtonM
               leftButton={{ onClick: closeModal, text: '취소' }}
-              rightButton={{ onClick: handleClickPayment, text: '결제' }}
+              rightButton={{ onClick: handleModal, text: '결제' }}
             />
           }
         />
-      ) : agitInfo.agitRole === true && cardLists[activeIndex].cardName === '' ? (
+      ) : agitInfo.agitRole && paymentData[activeIndex].cardName === '' ? (
         <Modal
           isOpen={isOpen}
           closeModal={closeModal}
           header={{
             title: agitInfo.name,
-            text: (
-              <>
-                해당 아지트에 개설된 모임 통장으로 발급받은 카드가 없습니다. <i className="dpb"></i> 카드를
-                발급하시겠습니까?
-              </>
-            ),
+            text: '해당 아지트에 개설된 모임 통장으로 발급받은 카드가 없습니다. 카드를 발급하시겠습니까?',
           }}
-          footer={<ButtonM leftButton={{ onClick: closeModal, text: '취소' }} rightButton={{ text: '발급' }} />}
+          footer={
+            <ButtonM
+              leftButton={{ onClick: closeModal, text: '취소' }}
+              rightButton={{ onClick: handleCreateCard, text: '발급' }}
+            />
+          }
         />
       ) : (
         <Modal
@@ -102,13 +178,14 @@ export default function PaymentMain() {
           closeModal={closeModal}
           header={{
             title: agitInfo.name,
-            text: (
-              <>
-                해당 아지트에 개설된 모임 통장 권한이 없습니다. <i className="dpb"></i> 출금 및 결제 권한을 요청할까요?
-              </>
-            ),
+            text: '해당 아지트에 개설된 모임 통장 권한이 없습니다. 출금 및 결제 권한을 요청할까요?',
           }}
-          footer={<ButtonM leftButton={{ onClick: closeModal, text: '취소' }} rightButton={{ text: '요청' }} />}
+          footer={
+            <ButtonM
+              leftButton={{ onClick: closeModal, text: '취소' }}
+              rightButton={{ onClick: handleAccountAuthority, text: '요청' }}
+            />
+          }
         />
       )}
 
@@ -125,7 +202,7 @@ export default function PaymentMain() {
                       {timeLeft > 0 ? <Title>결제 활성화</Title> : <Title>결제 비활성화</Title>}
                       <Box>
                         {timeLeft > 0 ? (
-                          <Image src="/icons/ico_qr.svg" width={125} height={125} alt="QR 코드" />
+                          <Image src={agitInfo.qrCode} width={125} height={125} alt="QR 코드" />
                         ) : (
                           <Image src="/imgs/img_bg_bank.jpg" width={125} height={125} alt="QR 코드" />
                         )}
@@ -151,7 +228,7 @@ export default function PaymentMain() {
                     className={styles.swiper}
                     onSlideChange={handleSlideChange}
                   >
-                    {cardLists.map((card, index) => (
+                    {paymentData.map((card, index) => (
                       <SwiperSlide
                         key={`card${index}`}
                         className={`${styles.swiperCardSlide} ${card.cardName == '' && styles.swiperAppendSlide}`}
@@ -167,7 +244,7 @@ export default function PaymentMain() {
                             />
                           </Box>
                         ) : (
-                          <Image src={`/imgs/${card.src}`} width={190} height={300} alt={`카드 이미지`} priority />
+                          <Image src={`${card.src}`} width={190} height={300} alt={`카드 이미지`} priority />
                         )}
                       </SwiperSlide>
                     ))}
@@ -184,7 +261,7 @@ export default function PaymentMain() {
                 <ButtonL style="deep" onClick={handleClickReset}>
                   취소하기
                 </ButtonL>
-              ) : cardLists[activeIndex].cardName !== '' ? (
+              ) : paymentData[activeIndex].cardName !== '' ? (
                 <ButtonL style="deep" onClick={openModal}>
                   결제하기
                 </ButtonL>

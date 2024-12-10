@@ -1,3 +1,4 @@
 import ImageCardSkeleton from './ImageCardSkeleton';
+import TableRowSkeleton from './TableRowSkeleton';
 
-export { ImageCardSkeleton };
+export { ImageCardSkeleton, TableRowSkeleton };

@@ -7,11 +7,11 @@ import { ImageCard } from './ImageCard';
 import { Label } from './Label';
 import { Landing } from './Landing';
 import { Modal } from './Modal';
-import { Navigation } from './Navigation';
+import { NavigationService, NavigationAdmin } from './Navigation';
 import { PinNumber } from './PinNumber';
 import { PinNumberText } from './PinNumber';
 import { SelectFilter } from './SelectFilter';
-import { ImageCardSkeleton } from './Skeleton';
+import { ImageCardSkeleton, TableRowSkeleton } from './Skeleton';
 import { TabMenu } from './TabMenu';
 import { Title } from './Title';
 import { Toast } from './Toast';
@@ -29,11 +29,13 @@ export {
   Label,
   Landing,
   Modal,
-  Navigation,
+  NavigationService,
+  NavigationAdmin,
   PinNumber,
   PinNumberText,
   SelectFilter,
   ImageCardSkeleton,
+  TableRowSkeleton,
   TabMenu,
   Title,
   Toast,

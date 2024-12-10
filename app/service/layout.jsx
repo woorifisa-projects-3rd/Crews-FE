@@ -1,5 +1,4 @@
-import { Landing } from '@/components/common';
-import Navigation from '@/components/common/Navigation/Navigation';
+import { Landing, NavigationService } from '@/components/common';
 import { Flex } from '@radix-ui/themes';
 
 export default function Layout({ children }) {
@@ -12,7 +11,7 @@ export default function Layout({ children }) {
           </section>
           <section className="webview">
             <div className="container">{children}</div>
-            <Navigation />
+            <NavigationService />
           </section>
         </Flex>
       </div>

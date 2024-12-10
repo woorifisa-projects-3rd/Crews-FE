@@ -115,7 +115,7 @@ export default function AccountAndHeader({ agitId, dues, data, isCard }) {
                   />
                 ) : agit?.memberRole === 'ADVANCED' ? (
                   <ButtonM
-                    leftButton={{ text: '권한 요청하기', isLoading: 'true' }}
+                    leftButton={{ text: '권한 요청하기', isLoading: 'true', isLoadingText: '권한 부여 대기중' }}
                     rightButton={{ text: '상세 내역보기', as: 'link', href: `/service/agits/${agitId}/accounts` }}
                   />
                 ) : !cardIssuanceInfo.cardExist ? (

@@ -10,6 +10,7 @@ import { useEffect, useRef } from 'react';
 import { deleteProfileImage, getProfile, updateProfileImage } from '@/apis/mypageAPI';
 import { useRouter } from 'next/navigation';
 import { deleteFileFromS3, getSignedS3Url, uploadFileToS3 } from '@/utils/s3utills';
+import { CDN_URL } from '@/constants/auth';
 
 export default function ProfileCard({ profileData }) {
   const { data } = useSWR('members/me/profile', () => getProfile(), {
@@ -83,9 +84,7 @@ export default function ProfileCard({ profileData }) {
               className={`${styles.profile_img} back_img ${data.profileImage == (null || '') ? styles.blank : ''}`}
               style={{
                 backgroundImage: `url(${
-                  data.profileImage?.trim()
-                    ? `https://djogyo1sj025q.cloudfront.net/${data.profileImage}`
-                    : '/imgs/img_bg_profile.jpg'
+                  data.profileImage?.trim() ? `${CDN_URL}${data.profileImage}` : '/imgs/img_bg_profile.jpg'
                 })`,
               }}
             >

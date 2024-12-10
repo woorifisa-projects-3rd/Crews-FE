@@ -1,3 +1,10 @@
-export default function Admin() {
-  return <div>관리자 페이지</div>;
+import { getAllReports } from '@/apis/adminAPI';
+import ComplaintList from '@/components/admin/ComplaintList';
+
+export default async function Admin() {
+  const initReports = await getAllReports(0);
+  if (initReports.errorCode) {
+    throw new Error(initReports.message);
+  }
+  return <ComplaintList initReports={initReports} />;
 }

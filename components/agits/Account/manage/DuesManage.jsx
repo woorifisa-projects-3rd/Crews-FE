@@ -66,7 +66,7 @@ export default function DuesManage({ agitId, commonDues, profileDatas, accountDe
       <Flex direction="column" gap="10px" className="content">
         <section>
           <ArrowButton data={commonDues} handleDateChange={handleDateChange}></ArrowButton>
-          <DuesModal agitId={agitId}></DuesModal>
+          <DuesModal agitId={agitId} yearAndMonth={yearAndMonth}></DuesModal>
         </section>
         <section>
           <Flex direction="column" gap="20px">

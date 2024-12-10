@@ -2,12 +2,12 @@
 
 import { useNavStore } from '@/stores/layoutStore';
 import Link from 'next/link';
-import styles from './Navigation.module.css';
+import styles from './NavigationService.module.css';
 import { Box, Flex } from '@radix-ui/themes';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
-export default function Navigation() {
+export default function NavigationService() {
   const pathname = usePathname();
   const { navVisible } = useNavStore();
   const { data: session } = useSession();

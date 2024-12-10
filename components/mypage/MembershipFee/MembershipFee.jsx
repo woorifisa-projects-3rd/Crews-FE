@@ -16,9 +16,13 @@ export default function MembershipFee({ crewData: crewFallbackData, myData: myFa
   const { toast, setToast, toastMessage, showToast } = useToast();
   const { isOpen: pinIsOpen, openModal: pinOpenModal, closeModal: pinCloseModal } = useModal();
   const { mutate } = useSWRConfig();
-  const { data: crewData = [] } = useSWR('members/me/agits-accounts', async () => await getFeePaymentInfo(), {
-    fallbackData: crewFallbackData,
-  });
+  const { data: crewData = [], isLoading } = useSWR(
+    'members/me/agits-accounts',
+    async () => await getFeePaymentInfo(),
+    {
+      fallbackData: crewFallbackData,
+    },
+  );
 
   const { data: myData = [] } = useSWR('members/me/my-accounts', async () => await getPersonalAccounts(), {
     fallbackData: myFallbackData,
@@ -147,7 +151,7 @@ export default function MembershipFee({ crewData: crewFallbackData, myData: myFa
             </Card>
           )}
 
-          <ButtonL style="deep" onClick={pinOpenModal} disabled={selectedCrewAccount?.paid}>
+          <ButtonL style="deep" onClick={pinOpenModal} disabled={selectedCrewAccount?.paid || isLoading}>
             이체하기
           </ButtonL>
         </Flex>

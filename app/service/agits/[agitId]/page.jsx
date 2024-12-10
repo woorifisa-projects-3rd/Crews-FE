@@ -6,6 +6,7 @@ import { cardIssuance, getAccount, getDues, getFeeds, getMeeting } from '@/apis/
 import Link from 'next/link';
 import AccountAndHeader from '@/components/agits/Account/AccountAndHeader';
 import { date } from '@/utils/date';
+import { CDN_URL } from '@/constants/auth';
 
 export default async function Page({ params }) {
   const yearAndMonth = {
@@ -80,7 +81,7 @@ export default async function Page({ params }) {
                     <li
                       className="back_img"
                       style={{
-                        backgroundImage: `url(${feed?.image == null || feed?.image == '' ? '/imgs/img_bg_feed.jpg' : feed?.image})`,
+                        backgroundImage: `url(${feed?.image == null || feed?.image == '' ? '/imgs/img_bg_feed.jpg' : CDN_URL + feed?.image})`,
                       }}
                       key={`feed${i}`}
                     >

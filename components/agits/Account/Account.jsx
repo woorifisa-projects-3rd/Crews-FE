@@ -4,6 +4,7 @@ import { Box, Card, Flex, Text } from '@radix-ui/themes';
 import styles from './Account.module.css';
 import Image from 'next/image';
 import { useState } from 'react';
+import { BASE_URL, CDN_URL } from '@/constants/auth';
 
 export default function Account({ data, hide = false }) {
   const [click, setClick] = useState(false);
@@ -11,11 +12,17 @@ export default function Account({ data, hide = false }) {
     <div className={styles.account}>
       <Card>
         <Flex gap="10px">
-          <Box className={styles.img_box}>
-            <div className={`${styles.img} img`}>
-              <Image src="/imgs/dev/img_bank.jpg" width={30} height={30} alt={`${data.bankName} 이미지`} />
+          <div className={styles.img_box}>
+            <div
+              className={`${styles.img} back_img ${data.bankImage == null ? styles.blank : ''}`}
+              style={{
+                backgroundImage: `url(${data.bankImage == null || data.bankImage == '' ? '/imgs/img_bg_bank.jpg' : CDN_URL + data.bankImage})`,
+              }}
+            >
+              <Image src="/imgs/img_bg_bank.jpg" width={30} height={30} alt={`${data.bankName} 이미지`} />
             </div>
-          </Box>
+          </div>
+
           <Box className={styles.account_info}>
             <Box className={styles.top}>
               <em>{data.productName}</em>

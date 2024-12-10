@@ -147,6 +147,14 @@ export const callDues = async (agitId, data) => {
   return response;
 };
 
+// 모임통장 회비 변경 문자 알림
+export const callDuesChange = async (agitId, data) => {
+  const response = await instance.post(`agits/${agitId}/dues-call`, {
+    body: JSON.stringify({ ...data }),
+  });
+  return response;
+};
+
 // 모임통장 권한 요청하기
 export const sendPermission = async (agitId) => {
   const response = await instance.post(`agits/${agitId}/accounts/permissions`);

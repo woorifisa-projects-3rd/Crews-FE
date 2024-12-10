@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 export default function AccountHistoryFilter({ handleFilterChange = () => {} }) {
   const [selectedMonth, setSelectedMonth] = useState(3); // 기본값
   const [selectedTranType, setSelectedTranType] = useState('ALL'); // 기본값
-  const [selectedOrder, setSelectedOrder] = useState('ASC'); // 기본값
+  const [selectedOrder, setSelectedOrder] = useState('DESC'); // 기본값
 
   // 컴포넌트가 마운트되었을 때 기본값을 부모 컴포넌트로 전달
   useEffect(() => {

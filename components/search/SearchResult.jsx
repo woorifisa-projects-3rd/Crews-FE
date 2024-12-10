@@ -77,12 +77,8 @@ export default function SearchResult({ params }) {
   };
 
   const handleCardClick = (id, name) => {
-    if (!session) {
-      router.push('/service/login');
-    } else {
-      setAgit({ id, name });
-      openModal();
-    }
+    setAgit({ id, name });
+    openModal();
   };
 
   const handleRequest = async (agitId) => {
@@ -133,7 +129,7 @@ export default function SearchResult({ params }) {
                   )
                 }
                 endMessage={
-                  <Text as="p" align="center">
+                  <Text as="p" align="center" weight="medium" mt="10px">
                     더 이상 불러올 데이터가 없습니다.
                   </Text>
                 }
@@ -164,9 +160,11 @@ export default function SearchResult({ params }) {
             text: '아지트에 가입하시려면 아래 사항을 확인해주세요.',
           }}
           footer={
-            <ButtonL onClick={() => handleRequest(agit.id)} type="button" style={'deep'}>
-              가입신청
-            </ButtonL>
+            session && (
+              <ButtonL onClick={() => handleRequest(agit.id)} type="button" style={'deep'}>
+                가입신청
+              </ButtonL>
+            )
           }
         >
           <ApplyModalContent agitId={agit.id} />
