@@ -4,13 +4,14 @@ import styles from './page.module.css';
 import { getFeed } from '@/apis/agitsAPI';
 import ReportHeartButton from '@/components/agits/ReportHeartButton';
 import EditDeleteButton from '@/components/agits/EditDeleteButton';
+import Image from 'next/image';
 
 export default async function Page({ params }) {
   const feed = await getFeed(params.agitId, params.feedId);
   if (feed?.errorCode) {
     throw new Error(feed.message);
   }
-  console.log('user: ', params);
+  console.log('user: ', feed.image);
 
   return (
     <div className="page">
@@ -20,9 +21,12 @@ export default async function Page({ params }) {
           <section>
             <Flex direction="column" gap="20px">
               <Box className="img_box">
-                <div className="img">
-                  <img src={feed.image || '/dev/img_introduce.jpg'} alt={feed.name} />
-                </div>
+                <Image
+                  src={`https://djogyo1sj025q.cloudfront.net/${feed.image}` || '/imgs/img_bg_feed.jpg'}
+                  width={190}
+                  height={147}
+                  alt={`${feed.content} 이미지`}
+                />
               </Box>
               <Flex direction="column" gap="10px">
                 <Flex justify="between" align="center" wrap="wrap" className={styles.info}>

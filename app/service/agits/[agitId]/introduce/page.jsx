@@ -23,7 +23,10 @@ export default async function Page({ params }) {
             <Flex direction="column" gap="20px">
               <Box className="img_box">
                 <div className="img">
-                  <img src={introducing.image || '/dev/img_introduce.jpg'} alt={introducing.agitName} />
+                  <img
+                    src={`https://djogyo1sj025q.cloudfront.net/${introducing.image}` || '/dev/img_introduce.jpg'}
+                    alt={introducing.agitName}
+                  />
                 </div>
               </Box>
               <Flex direction="column" gap="20px">

@@ -141,7 +141,9 @@ export default function FeedList({ agitId }) {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Flex direction="column" gap="10px">
             <Box className="row">
-              <Text as="label">활동 이미지</Text>
+              <Text as="label" className="require">
+                활동 이미지
+              </Text>
               <Box className="input input_btn input_file">
                 <input
                   type="file"
@@ -210,12 +212,12 @@ export default function FeedList({ agitId }) {
                       <Flex direction="column" gap="10px">
                         <Box className={styles.feed_btn}>
                           <Image
-                            src={'/imgs/img_bg_feed.jpg'}
+                            src={`https://djogyo1sj025q.cloudfront.net/${feed.image}` || '/imgs/img_bg_feed.jpg'}
                             width={190}
                             height={147}
-                            alt={`${feed.content} 이미지`}
+                            alt={`${feed.title} 이미지`}
                           />
-                          <button
+                          {/* <button
                             onClick={(e) => {
                               console.log(e.target);
                               setIsLiked(!isLiked);
@@ -248,7 +250,7 @@ export default function FeedList({ agitId }) {
                                 />
                               </svg>
                             )}
-                          </button>
+                          </button> */}
                         </Box>
                         <Link href={`/service/agits/${agitId}/feeds/${feed?.id}`}>
                           <Flex direction="column" gap="5px">

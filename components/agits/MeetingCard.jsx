@@ -62,12 +62,15 @@ export default function MeetingCard({ agitId }) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [hasNext]);
+
+  console.log(meetings);
   return (
     <Flex direction="column" gap="10px">
       {meetings.map((meeting, i) => {
         return (
           <ImageCard
             type="meeting"
+            dynamicId={agitId}
             data={meeting}
             key={`meeting${i}`}
             onClick={() => handleCardClick(meeting.id)}

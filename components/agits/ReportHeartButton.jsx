@@ -46,7 +46,7 @@ export default function ReportHeartButton({ heart, agitId, feedId }) {
         <button className={`${styles.report_btn} red`} onClick={() => setIsOpen(true)}>
           신고하기
         </button>
-        <Flex justify="between" gap="5px" className={styles.like_count}>
+        {/* <Flex justify="between" gap="5px" className={styles.like_count}>
           <button onClick={toggleLike}>
             {isLiked ? (
               <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,10 +64,10 @@ export default function ReportHeartButton({ heart, agitId, feedId }) {
               </svg>
             )}
           </button>
-          {/* <Text as="p" size="1" weight="medium" className="red">
+          <Text as="p" size="1" weight="medium" className="red">
             {heart}
-          </Text> */}
-        </Flex>
+          </Text>
+        </Flex> */}
       </Flex>
     </>
   );
