@@ -70,7 +70,7 @@ export default function PinNumber({ defaultStage, defaultStatus, data, closeModa
   const [stash, setStash] = useState();
   const handleSubmitPinNumber = async () => {
     const pinNumber = pin.join('');
-    if (pinNumber.length < 6 || pinNumber == '0') {
+    if (pinNumber.length < 6 || pinNumber == '0' || pinNumber == '') {
       scrollToTop();
       showToast('PIN번호를 입력해주세요!');
       return;
@@ -137,6 +137,7 @@ export default function PinNumber({ defaultStage, defaultStatus, data, closeModa
         if (response?.errorCode) {
           scrollToTop();
           showToast(response.message);
+          handleReset();
           return;
         }
         alert('인증완료!');

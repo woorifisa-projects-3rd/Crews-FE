@@ -1,6 +1,6 @@
 'use client';
 import { Box, Flex, Text } from '@radix-ui/themes';
-import { ButtonM, Modal } from '../common';
+import { ButtonM, Modal } from '@/components/common';
 import styles from './ProfileCardList.module.css';
 import { useModal } from '@/hooks';
 import Image from 'next/image';
