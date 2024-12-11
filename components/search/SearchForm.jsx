@@ -1,8 +1,6 @@
 'use client';
 
-import { Flex } from '@radix-ui/themes';
-import { Header, SelectFilter } from '@/components/common';
-import { searchMenu } from '@/constants/selectMenuList/searchMenuList';
+import { Header } from '@/components/common';
 import Image from 'next/image';
 import styles from './SearchForm.module.css';
 import { useForm } from 'react-hook-form';

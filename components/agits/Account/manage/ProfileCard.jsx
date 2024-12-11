@@ -3,8 +3,6 @@
 import { Text, Flex } from '@radix-ui/themes';
 import styles from './ProfileCard.module.css';
 import Image from 'next/image';
-import useSWR from 'swr';
-import instance from '@/apis/instance';
 import { callDues } from '@/apis/agitsAPI';
 import { useState } from 'react';
 import { CDN_URL } from '@/constants/auth';

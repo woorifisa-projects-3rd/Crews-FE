@@ -1,6 +1,7 @@
 'use client';
 
 import { getReport } from '@/apis/adminAPI';
+import { CDN_URL } from '@/constants/auth';
 import { Flex, Text } from '@radix-ui/themes';
 import Image from 'next/image';
 import { useEffect } from 'react';
@@ -16,7 +17,7 @@ export default function ReportModalContent({ mutate, feedId }) {
       <div className="img" style={{ position: 'relative' }}>
         {data?.feedImage != '' && data?.feedImage != null && (
           <Image
-            src={data?.feedImage}
+            src={CDN_URL + data?.feedImage}
             alt="신고기록 이미지"
             width={0}
             height={0}

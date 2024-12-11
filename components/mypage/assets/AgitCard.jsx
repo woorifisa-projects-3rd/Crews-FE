@@ -10,6 +10,7 @@ import { useState } from 'react';
 import instance from '@/apis/instance';
 import useSWR, { mutate } from 'swr';
 import { detachAgitCard } from '@/apis/mypageAPI';
+import { CDN_URL } from '@/constants/auth';
 
 export default function AgitCard(cardData) {
   const { data } = useSWR('members/me/agits-cards', () => instance.get('members/me/agits-cards'), {
@@ -48,7 +49,7 @@ export default function AgitCard(cardData) {
             <Card>
               <Flex align="center" gap="10px">
                 <Box className={styles.img_box}>
-                  <Box className="back_img" style={{ backgroundImage: `url(${card.cardImage})` }}>
+                  <Box className="back_img" style={{ backgroundImage: `url(${CDN_URL}${card.cardImage})` }}>
                     <Image src="/imgs/img_bg_asset_card.jpg" width={47} height={73} alt={`카드 이미지`} />
                   </Box>
                 </Box>

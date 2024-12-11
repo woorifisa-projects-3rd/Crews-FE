@@ -8,6 +8,7 @@ import useSWR from 'swr';
 import { getAgitIntroducing, getAgitMeetings } from '@/apis/searchAPI';
 import { getAddressValue } from '@/utils/address';
 import Image from 'next/image';
+import { CDN_URL } from '@/constants/auth';
 
 export default function ApplyModalContent({ agitId }) {
   const { data: introducingData } = useSWR(`agits/${agitId}/introducing`, async () => {
@@ -19,7 +20,7 @@ export default function ApplyModalContent({ agitId }) {
     const response = await getAgitMeetings(agitId);
     return response;
   });
-
+  console.log(introducingData);
   return (
     <Flex direction="column" gap="20px">
       <div className={styles.img_box}>
@@ -27,7 +28,7 @@ export default function ApplyModalContent({ agitId }) {
           {introducingData?.image == '' || introducingData?.image == null ? (
             <Image src="/imgs/dev/img_apply.jpg" width={420} height={300} alt="소개 이미지가 존재하지 않습니다." />
           ) : (
-            <img src={introducingData.image} />
+            <img src={CDN_URL + introducingData.image} />
           )}
         </div>
         <Label style="lime">{introducingData?.subject}</Label>

@@ -12,6 +12,7 @@ import useSWR from 'swr';
 import { useState } from 'react';
 import { attachBankAccount, detachPersonalAccount, getBankAccount } from '@/apis/mypageAPI';
 import instance from '@/apis/instance';
+import { CDN_URL } from '@/constants/auth';
 
 export default function MyAccount({ data: fallbackData }) {
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -93,7 +94,10 @@ export default function MyAccount({ data: fallbackData }) {
               <Card>
                 <Flex align="center" gap="10px">
                   <Box className={styles.img_box}>
-                    <Box className={`${styles.img} back_img`} style={{ backgroundImage: `url(${account.bankImage})` }}>
+                    <Box
+                      className={`${styles.img} back_img`}
+                      style={{ backgroundImage: `url(${CDN_URL}${account.bankImage})` }}
+                    >
                       <Image src="/imgs/img_bg_bank.jpg" width={36} height={36} alt={`${account.accountName} 이미지`} />
                     </Box>
                   </Box>
