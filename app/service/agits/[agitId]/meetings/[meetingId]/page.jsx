@@ -5,9 +5,7 @@ import { getMeetingDetails } from '@/apis/agitsAPI';
 import Image from 'next/image';
 
 export default async function Page({ params }) {
-  console.log(params.agitId, params.meetingId);
   const meeting = await getMeetingDetails(params.agitId, params.meetingId);
-  // ssr 에서만 하는 에러처리
   if (meeting?.errorCode) {
     throw new Error(meeting.message);
   }
@@ -24,7 +22,12 @@ export default async function Page({ params }) {
             </ButtonL>
             <Box className="img_box">
               <div className="img">
-                <Image src={meeting.image || '/dev/img_introduce.jpg'} alt={meeting.name} />
+                <Image
+                  src={`https://djogyo1sj025q.cloudfront.net/${meeting.image}` || '/dev/img_introduce.jpg'}
+                  width={390}
+                  height={147}
+                  alt={meeting.name}
+                />
               </div>
             </Box>
             <Box className="info_list">
@@ -33,7 +36,7 @@ export default async function Page({ params }) {
                   <li>
                     <em>모임일시</em>
                     <Text as="p" size="2" weight="medium" className="gray_t1">
-                      {new Date(meeting.date).toLocaleDateString()}{' '}
+                      {new Date(meeting.date).toLocaleDateString()}
                       {new Date(meeting.date).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit',

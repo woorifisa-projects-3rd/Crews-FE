@@ -19,13 +19,6 @@ export default function FeedList({ agitId }) {
   const [hasNext, setHasNext] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const handleCardClick = (feedId) => {
-    if (agitId) {
-      router.push(`/agits/${agitId}/feeds/${feedId}`);
-    } else {
-      console.error('agitId is undefined');
-    }
-  };
   const fetchFeeds = async (currentPage) => {
     if (!hasNext || isLoading) return;
     setIsLoading(true);
@@ -214,7 +207,7 @@ export default function FeedList({ agitId }) {
                             src={`https://djogyo1sj025q.cloudfront.net/${feed.image}` || '/imgs/img_bg_feed.jpg'}
                             width={190}
                             height={147}
-                            alt={`${feed.content} 이미지`}
+                            alt={'/imgs/img_bg_feed.jpg'}
                           />
                           {/* <button
                             onClick={(e) => {

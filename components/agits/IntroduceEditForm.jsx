@@ -27,7 +27,7 @@ export default function IntroduceEditForm({ agitId }) {
     return response;
   });
   if (introducing?.errorCode) {
-    throw new Error(introducing.message);
+    alert(introducing.message);
   }
   const [fileName, setFileName] = useState(introducing?.image || '');
   const onFileChange = (e) => {
@@ -99,14 +99,14 @@ export default function IntroduceEditForm({ agitId }) {
         image: imageUrl, // 업로드된 이미지 URL을 포함
       };
 
-      console.log('Formed data:', formData);
-
       // 백엔드에 데이터 업데이트 요청
       await updateIntroducing(agitId, formData);
 
       // 성공 시 페이지 이동
       showToast('수정이 완료되었습니다.');
-      router.push(`/service/agits/${agitId}/introduce`);
+      setTimeout(() => {
+        router.push(`/service/agits/${agitId}/introduce`);
+      }, 2000);
     } catch (error) {
       console.error('업데이트 중 오류 발생:', error);
       alert('업데이트에 실패했습니다. 다시 시도해주세요.');

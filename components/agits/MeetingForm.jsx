@@ -59,31 +59,32 @@ export default function MeetingForm({ agitId, meetingId, status }) {
   }, [meeting, setValue]);
 
   const onSubmit = async (data) => {
-    console.log('submit data: ', data);
     try {
+      const file = data.target.files[0];
+      if (!file) return;
+
       // 기존 이미지 URL 저장
-      let imageUrl = existingFile;
+      // let imageUrl = existingFile;
 
       // 새 파일이 선택된 경우
-      if (data.file && data.file instanceof File) {
-        // 파일 형식 검증
-        if (!['image/png', 'image/jpeg'].includes(data.file.type)) {
-          alert('지원하지 않는 파일 형식입니다. png 또는 jpg 이미지만 업로드할 수 있습니다.');
-          return;
-        }
-
-        // 기존 파일 삭제 (필요한 경우)
-        if (existingFile) {
-          await deleteFileFromS3(existingFile, 'meeting');
-        }
-
-        // S3 업로드 처리
-        const { signedUrl, fileName } = await getSignedS3Url(data.file.type, 'meeting');
-        await uploadFileToS3(signedUrl, data.file);
-
-        // 새로 업로드된 파일 URL 업데이트
-        imageUrl = fileName;
+      // if (data.file && data.file instanceof File) {
+      // 파일 형식 검증
+      if (!['image/png', 'image/jpeg'].includes(data.type)) {
+        alert('지원하지 않는 파일 형식입니다. png 또는 jpg 이미지만 업로드할 수 있습니다.');
+        return;
       }
+
+      // 기존 파일 삭제 (필요한 경우)
+      // if (existingFile) {
+      //   await deleteFileFromS3(existingFile, 'meeting');
+      // }
+      const { signedUrl, fileName } = await getSignedS3Url(file.type, 'meeting');
+      await uploadFileToS3(signedUrl, file);
+      // S3 업로드 처리
+
+      // 새로 업로드된 파일 URL 업데이트
+      imageUrl = fileName;
+
       const formData = {
         name: data.name,
         image: imageUrl,
@@ -91,20 +92,26 @@ export default function MeetingForm({ agitId, meetingId, status }) {
         place: data.place,
         content: data.content,
       };
-      console.log('formed data:', formData);
       if (status == 'edit') {
-        await updateMeeting(agitId, meetingId, formData);
+        const update = await updateMeeting(agitId, meetingId, formData);
+        if (update?.errorCode) {
+          alert(update.message);
+        }
         showToast('수정 완료');
-        router.push(`/service/agits/${agitId}/meetings`);
-        console.log('수정 완료');
+        setTimeout(() => {
+          router.push(`/service/agits/${agitId}/meetings`);
+        }, 2000);
       } else {
-        await createMeeting(agitId, formData);
+        const create = await createMeeting(agitId, formData);
+        if (create?.errorCode) {
+          alert(create.message);
+        }
         showToast('등록 완료');
-        router.push(`/service/agits/${agitId}/meetings`);
-        console.log('등록 완료');
+        setTimeout(() => {
+          router.push(`/service/agits/${agitId}/meetings`);
+        }, 2000);
       }
     } catch (error) {
-      console.error('업데이트 중 오류 발생:', error);
       alert('업데이트에 실패했습니다. 다시 시도해주세요.');
     }
   };
@@ -232,20 +239,11 @@ export default function MeetingForm({ agitId, meetingId, status }) {
                 control={control}
                 render={({ field }) => (
                   <AddressFormField
-                    value={field.value || meeting?.place || ''}
+                    value={field.value}
                     onChange={(newAddress) => {
-                      const parts = [
-                        newAddress.siName !== '없음' ? newAddress.siName : null,
-                        newAddress.guName !== '없음' ? newAddress.guName : null,
-                        newAddress.dongName !== '없음' ? newAddress.dongName : null,
-                      ].filter(Boolean); // null 값 필터링
-
-                      const combinedPlace = parts.join(' ');
-
                       field.onChange(newAddress);
-                      setValue('place', combinedPlace);
                     }}
-                    // showToast={showToast}
+                    showToast={showToast}
                   />
                 )}
               />

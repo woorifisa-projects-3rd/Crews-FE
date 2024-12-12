@@ -3,6 +3,7 @@ import { Flex, Text } from '@radix-ui/themes';
 import ProfileCardList from '@/components/agits/ProfileCardList';
 import AgitHeader from '@/components/agits/AgitHeader';
 import { agitManage } from '@/apis/agitsAPI';
+import styles from './page.module.css';
 
 export default async function Page({ params }) {
   const manage = await agitManage(params.agitId);
@@ -15,30 +16,21 @@ export default async function Page({ params }) {
       <Flex direction="column" gap="10px" className="content">
         <section>
           <Flex direction="column" gap="20px">
-            {/* 통장 권한 신청 제목 */}
             <Flex justify="between" align="center" wrap="wrap">
-              <Title>통장 권한 신청</Title>
+              <Title>멤버</Title>
               <Text as="p" size="2" weight="medium" className="gray_t1">
                 {manage.advancedMember}명
               </Text>
             </Flex>
-
-            {/* ProfileCardList 렌더링 */}
             <ProfileCardList agitId={params.agitId} status="account" members={manage.advancedMembers} />
-
-            {/* 조건문 렌더링 */}
             {manage.advancedMember == 0 ? (
-              <Flex justify="center" align="center" style={{ width: '100%' }}>
-                <Text as="p" weight="medium">
-                  <span>통장 권한 요청한 멤버가 없습니다.</span>
-                </Text>
-              </Flex>
+              <Text as="p" weight="medium" className={styles.center}>
+                <span>통장 권한 요청한 멤버가 없습니다.</span>
+              </Text>
             ) : (
-              <Flex direction="column" gap="10px">
-                <ButtonL as="link" href={`/service/agits/${params.agitId}/setting/details`} style="deep" size="3">
-                  더보기
-                </ButtonL>
-              </Flex>
+              <ButtonL as="link" href={`/service/agits/${params.agitId}/manage/details`} style="deep" size="3">
+                더보기
+              </ButtonL>
             )}
           </Flex>
         </section>
@@ -52,22 +44,13 @@ export default async function Page({ params }) {
             </Flex>
             <ProfileCardList agitId={params.agitId} status="member" members={manage.requestedMembers} />
             {manage.requestedMember == 0 ? (
-              <Text
-                as="p"
-                weight="medium"
-                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}
-              >
+              <Text as="p" weight="medium" className={styles.center}>
                 <span>가입신청을 요청한 멤버가 없습니다.</span>
               </Text>
             ) : (
-              <Flex direction="column" gap="10px">
-                <ButtonL as="link" href={`/service/agits/${params.agitId}/setting/details`} style="deep" size="3">
-                  더보기
-                </ButtonL>
-                {/* <Text align="center" size="2" className="gray_t2">
-              아지트 해체
-            </Text> */}
-              </Flex>
+              <ButtonL as="link" href={`/service/agits/${params.agitId}/manage/details`} style="deep" size="3">
+                더보기
+              </ButtonL>
             )}
           </Flex>
         </section>

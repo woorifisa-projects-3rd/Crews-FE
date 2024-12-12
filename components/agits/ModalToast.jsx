@@ -15,6 +15,7 @@ export default function ModalToast({ isOpen, closeModal, agitId, feedId }) {
     };
     console.log('formed data: ', formData);
     const response = await reportFeed(agitId, feedId, formData);
+
     if (response.errorCode === 'ALREADY_REPORTED_FEED') {
       alert('이미 신고한 피드입니다.');
       closeModal();

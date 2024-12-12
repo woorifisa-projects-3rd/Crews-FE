@@ -3,6 +3,8 @@ import { Box, Flex, Text } from '@radix-ui/themes';
 import AgitHeader from '@/components/agits/AgitHeader';
 import { getIntroducing } from '@/apis/agitsAPI';
 import Image from 'next/image';
+import { getAddressValue } from '@/utils/address';
+import { CDN_URL } from '@/constants/auth';
 
 export default async function Page({ params }) {
   const introducing = await getIntroducing(params.agitId);
@@ -23,11 +25,13 @@ export default async function Page({ params }) {
             </Box>
             <Flex direction="column" gap="20px">
               <Box className="img_box">
-                <div className="img">
-                  <Image
-                    src={`https://djogyo1sj025q.cloudfront.net/${introducing.image}` || '/dev/img_introduce.jpg'}
-                    alt={introducing.agitName}
-                  />
+                <div
+                  className="img"
+                  style={{
+                    backgroundImage: `url(${introducing?.image == null || introducing?.image == '' ? '/dev/img_introduce.jpg' : CDN_URL + introducing?.image})`,
+                  }}
+                >
+                  <Image src="/dev/img_introduce.jpg" width={390} height={250} alt={introducing.agitName} />
                 </div>
               </Box>
               <Flex direction="column" gap="20px">
@@ -37,14 +41,7 @@ export default async function Page({ params }) {
                       <li>
                         <em>활동 지역</em>
                         <Text as="p" size="2" weight="medium" className="gray_t1">
-                          {[
-                            introducing.address.doName,
-                            introducing.address.siName,
-                            introducing.address.guName,
-                            introducing.address.dongName,
-                          ]
-                            .filter((value) => value && value !== '없음')
-                            .join(' ')}
+                          {getAddressValue(introducing.address)}
                         </Text>
                       </li>
                       <li>
@@ -64,14 +61,11 @@ export default async function Page({ params }) {
                 </Box>
                 <Flex wrap="wrap" gap="10px" asChild>
                   <ul>
-                    {introducing.interests.map(
-                      (interest, index) =>
-                        interest?.name && (
-                          <li key={index}>
-                            <Label style="deep">#{interest.name}</Label>
-                          </li>
-                        ),
-                    )}
+                    {introducing.interests.map((interest, index) => (
+                      <li key={index}>
+                        <Label style="deep">#{interest.name}</Label>
+                      </li>
+                    ))}
                   </ul>
                 </Flex>
                 <ButtonL style="deep" as="link" href={`/service/agits/${params.agitId}/introduce/edit`}>

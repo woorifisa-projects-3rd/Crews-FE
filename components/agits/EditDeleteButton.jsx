@@ -8,21 +8,19 @@ export default function EditDeleteButton({ agitId, feedId }) {
   const router = useRouter();
   const { toast, setToast, toastMessage, showToast } = useToast();
   const handleDelete = async () => {
-    try {
-      const response = await deleteFeed(agitId, feedId);
-      if (response.statusCodeValue === 200) {
-        showToast('삭제되었습니다.');
+    const response = await deleteFeed(agitId, feedId);
+    if (response?.errorCode) {
+      throw new Error(response.message);
+    }
+    if (response.statusCodeValue === 200) {
+      showToast('삭제되었습니다.');
 
-        // 2초 딜레이 후 페이지 이동
-        setTimeout(() => {
-          router.replace(`/service/agits/${agitId}/feeds`);
-        }, 2000);
-      } else {
-        alert('삭제 실패');
-      }
-    } catch (error) {
-      console.error('삭제 중 오류 발생:', error);
-      alert('서버 오류로 삭제에 실패했습니다.');
+      // 2초 딜레이 후 페이지 이동
+      setTimeout(() => {
+        router.push(`/service/agits/${agitId}/feeds`);
+      }, 2000);
+    } else {
+      showToast('삭제 실패');
     }
   };
   return (

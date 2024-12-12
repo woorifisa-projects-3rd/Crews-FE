@@ -5,13 +5,13 @@ import { getFeed } from '@/apis/agitsAPI';
 import ReportHeartButton from '@/components/agits/ReportHeartButton';
 import EditDeleteButton from '@/components/agits/EditDeleteButton';
 import Image from 'next/image';
+import { CDN_URL } from '@/constants/auth';
 
 export default async function Page({ params }) {
   const feed = await getFeed(params.agitId, params.feedId);
   if (feed?.errorCode) {
     throw new Error(feed.message);
   }
-  console.log('user: ', feed.image);
 
   return (
     <div className="page">
@@ -21,12 +21,13 @@ export default async function Page({ params }) {
           <section>
             <Flex direction="column" gap="20px">
               <Box className="img_box">
-                <Image
-                  src={`https://djogyo1sj025q.cloudfront.net/${feed.image}` || '/imgs/img_bg_feed.jpg'}
-                  width={190}
-                  height={147}
-                  alt={`${feed.content} 이미지`}
-                />
+                <div
+                  style={{
+                    backgroundImage: `url(${feed?.image == null || feed?.image == '' ? '/imgs/img_bg_feed.jpg' : CDN_URL + feed?.image})`,
+                  }}
+                >
+                  <Image src="/imgs/img_bg_feed.jpg" width={390} height={147} alt={`${feed.content} 이미지`} />
+                </div>
               </Box>
               <Flex direction="column" gap="10px">
                 <Flex justify="between" align="center" wrap="wrap" className={styles.info}>

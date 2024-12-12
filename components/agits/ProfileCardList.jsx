@@ -1,6 +1,6 @@
 'use client';
 import { Box, Flex, Text } from '@radix-ui/themes';
-import { ButtonM, Modal } from '../common';
+import { ButtonM, Modal, Title } from '../common';
 import styles from './ProfileCardList.module.css';
 import { useModal } from '@/hooks';
 import Image from 'next/image';
@@ -16,16 +16,13 @@ export default function ProfileCardList({ agitId, status, members }) {
       status: 'approve',
       requestMemberId: selectedMember.id,
     };
-    console.log(formData);
 
-    try {
-      await memberAuthorization(agitId, formData);
-      console.log('가입 신청 수락 완료');
-      alert('가입신청을 수락하였습니다.');
-      closeMemberInOutModal();
-    } catch (error) {
-      console.error('가입 신청 수락 실패', error);
+    const memberAuth = await memberAuthorization(agitId, formData);
+    if (memberAuth?.errorCode) {
+      alert(memberAuth.errorCode);
     }
+    alert('가입신청을 수락하였습니다.');
+    closeMemberInOutModal();
   };
 
   const handleAcceptAccount = async (member) => {
@@ -35,14 +32,12 @@ export default function ProfileCardList({ agitId, status, members }) {
     };
     console.log(formData);
 
-    try {
-      await accountAuthorization(agitId, formData);
-      console.log('권한 부여 완료');
-      alert('통장 권한 신청을 수락하였습니다.');
-      closeAccountUseModal();
-    } catch (error) {
-      console.error('권한 부여 실패', error);
+    const accountAuth = await accountAuthorization(agitId, formData);
+    if (accountAuth?.errorCode) {
+      alert(account.errorCode);
     }
+    alert('통장 권한 신청을 수락하였습니다.');
+    closeAccountUseModal();
   };
   return (
     <>
@@ -50,7 +45,7 @@ export default function ProfileCardList({ agitId, status, members }) {
         isOpen={isMemberInOutOpen}
         closeModal={closeMemberInOutModal}
         header={{
-          title: <>{`${selectedMember?.nickName}의 가입신청을 수락하시겠습니까?`}</>,
+          title: <>{`${selectedMember?.nickName}님의 가입신청을 수락하시겠습니까?`}</>,
         }}
         footer={
           <ButtonM
@@ -66,7 +61,7 @@ export default function ProfileCardList({ agitId, status, members }) {
         isOpen={isAccountUseOpen}
         closeModal={closeAccountUseModal}
         header={{
-          title: <>{`${selectedMember?.nickName}에게 통장 권한을 부여하시겠습니까?`}</>,
+          title: <>{`${selectedMember?.nickName}님에게 통장 권한을 부여하시겠습니까?`}</>,
         }}
         footer={
           <ButtonM
@@ -78,6 +73,7 @@ export default function ProfileCardList({ agitId, status, members }) {
           />
         }
       />
+
       <div className={styles.cardList}>
         <ul>
           {members.map((member) => (
@@ -97,18 +93,7 @@ export default function ProfileCardList({ agitId, status, members }) {
                     <Image src="/imgs/img_bg_card.jpg" width={56} height={56} alt={`${member.name} 소개 이미지`} />
                   </Box>
                 </Box>
-                {/* <Box className={`${styles.img_box} img`}>
-                  <Box
-                    className="img"
-                    style={{
-                      backgroundImage: `url(${
-                        member.profileImage
-                          ? `https://djogyo1sj025q.cloudfront.net/${member.profileImage}`
-                          : '/dev/imgs/img_bg_profile.jpg'
-                      })`,
-                    }}
-                  />
-                </Box> */}
+
                 <Box direction="column" className={styles.txt}>
                   <Text as="p" weight="bold">
                     <span>{member.nickName}</span> 님
@@ -117,15 +102,10 @@ export default function ProfileCardList({ agitId, status, members }) {
                     {member.email}
                   </Text>
                 </Box>
-
-                {/* 버튼 렌더링 */}
                 <button
                   className={`${styles.captain_btn} light`}
                   onClick={() => {
-                    // 선택한 멤버 저장
                     setSelectedMember(member);
-
-                    // 버튼 클릭에 따라 모달 열기
                     status === 'account' ? openAccountUseModal() : openMemberInOutModal();
                   }}
                 >
