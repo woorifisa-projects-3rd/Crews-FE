@@ -2,7 +2,8 @@
 
 import Modal from '@/components/common/Modal/Modal';
 import DaumPostcodeEmbed from 'react-daum-postcode';
-import { doList, majorCities, NONE } from '@/constants/address';
+import { NONE } from '@/constants/address';
+import { stringToObject } from '@/utils/address';
 
 export default function AddressSearchModal({ isOpen, onClose, onSelect, showToast }) {
   const handleCompletePostcode = async (data) => {
@@ -13,26 +14,7 @@ export default function AddressSearchModal({ isOpen, onClose, onSelect, showToas
     }
 
     const fullAddress = data.jibunAddress;
-
-    let doName = NONE;
-    let siName = NONE;
-    let guName = NONE;
-    let dongName = NONE;
-
-    fullAddress.split(' ').forEach((part) => {
-      if (majorCities.includes(part)) {
-        siName = part;
-        doName = NONE;
-      } else if (doList.includes(part)) {
-        doName = part;
-      } else if (part.endsWith('시')) {
-        siName = part;
-      } else if (part.endsWith('구') || part.endsWith('군')) {
-        guName = part;
-      } else if (part.endsWith('동') || part.endsWith('면')) {
-        dongName = part;
-      }
-    });
+    const { doName, siName, guName, dongName } = stringToObject(fullAddress);
 
     if (siName === NONE || dongName === NONE) {
       showToast('올바른 주소를 선택해주세요.');

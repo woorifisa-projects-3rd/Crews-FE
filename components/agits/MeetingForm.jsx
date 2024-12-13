@@ -9,17 +9,13 @@ import { createMeeting, getMeetingForEdit, updateMeeting } from '@/apis/agitsAPI
 import { useRouter } from 'next/navigation';
 import { deleteFileFromS3, fetchFileFromS3, getSignedS3Url, uploadFileToS3 } from '@/utils/s3utills';
 import { useToast } from '@/hooks';
+import { doList, initEmpty, majorCities, NONE } from '@/constants/address';
+import { stringToObject } from '@/utils/address';
 
-export default function MeetingForm({ agitId, meetingId, status }) {
+export default function MeetingForm({ agitId, meetingId, initMeeting, status }) {
   const [existingFile, setExistingFile] = useState('');
   const { toast, setToast, toastMessage, showToast } = useToast();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    control,
-  } = useForm();
+
   const { data: meeting } = useSWR(
     status === 'edit' ? `agits/${agitId}/meetings/${meetingId}/edit` : null,
     async () => {
@@ -30,12 +26,28 @@ export default function MeetingForm({ agitId, meetingId, status }) {
       return null;
     },
   );
-
   if (meeting?.errorCode) {
-    throw new Error(meeting.message);
+    alert(meeting.message);
   }
+
+  const place = stringToObject(initMeeting.place);
+
+  console.log('place', place);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    control,
+  } = useForm({
+    defaultValues: {
+      ...initMeeting,
+      place,
+    },
+  });
+
   const router = useRouter();
-  const [fileName, setFileName] = useState(meeting?.image || '');
+  const [fileName, setFileName] = useState(meeting?.image);
   const onFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -43,22 +55,9 @@ export default function MeetingForm({ agitId, meetingId, status }) {
       setValue('file', file);
     }
   };
-  useEffect(() => {
-    if (meeting) {
-      console.log(meeting);
-
-      setValue('name', meeting.name);
-      setValue('date', meeting.date);
-      setValue('place', meeting.place);
-      setValue('content', meeting.content);
-      if (meeting.image) {
-        setFileName(meeting.image); // 수정 상태에서 기존 파일명 설정
-      }
-      console.log('before data: ', meeting.date);
-    }
-  }, [meeting, setValue]);
 
   const onSubmit = async (data) => {
+    console.log('data', data);
     try {
       const file = data.target.files[0];
       if (!file) return;
@@ -116,6 +115,8 @@ export default function MeetingForm({ agitId, meetingId, status }) {
     }
   };
 
+  console.log(meeting?.place);
+
   return (
     <>
       <Toast
@@ -160,27 +161,22 @@ export default function MeetingForm({ agitId, meetingId, status }) {
                 모임 이미지
               </Text>
               <Box className="input input_btn input_file">
-                <input
-                  type="file"
-                  id="file"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  {...register('file')}
-                  onChange={onFileChange}
-                />
+                <input type="file" id="file" accept=".jpg,.jpeg,.png,.pdf" onChange={onFileChange} />
                 <input
                   id="image"
                   type="text"
                   value={fileName}
+                  {...register('image')}
                   placeholder="이미지를 추가해주세요"
-                  className={errors.file ? 'error' : ''}
+                  className={errors.image ? 'error' : ''}
                   readOnly
                 />
 
                 <label htmlFor="file">파일 선택</label>
               </Box>
-              {errors.file && (
+              {errors.image && (
                 <Text as="p" className="error">
-                  {errors.file.message}
+                  {errors.image.message}
                 </Text>
               )}
             </Box>
@@ -209,33 +205,9 @@ export default function MeetingForm({ agitId, meetingId, status }) {
                 </Text>
               )}
             </Box>
-            {/* <Box className="row">
-            <Text as="label" className="require">
-              모임 위치
-            </Text>
-            <Box className="input input_btn">
-              <input
-                id="place"
-                type="text"
-                value="서울 관악구 신림동"
-                placeholder="모임 위치를 입력해주세요"
-                {...register('place', {
-                  required: '모임 위치를 입력해주세요',
-                })}
-                className={errors.place ? 'error' : ''}
-                readOnly
-              />
-              <button type="button">주소 검색</button>
-            </Box>
-            {errors.place && (
-              <Text as="p" className="error">
-                {errors.place.message}
-              </Text>
-            )}
-          </Box> */}
             <Box className="row">
               <Controller
-                name="address"
+                name="place"
                 control={control}
                 render={({ field }) => (
                   <AddressFormField

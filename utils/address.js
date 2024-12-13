@@ -1,4 +1,4 @@
-import { majorCities, NONE } from '@/constants/address';
+import { doList, majorCities, NONE } from '@/constants/address';
 
 export const getAddressValue = (address) => {
   if (!address) return '';
@@ -41,4 +41,25 @@ export const isAddressEmpty = (address) => {
   }
 
   return false;
+};
+
+export const stringToObject = (string) => {
+  const address = { doName: NONE, siName: NONE, guName: NONE, dongName: NONE };
+
+  string.split(' ').forEach((part) => {
+    if (majorCities.includes(part)) {
+      address.siName = part;
+      address.doName = NONE;
+    } else if (doList.includes(part)) {
+      address.doName = part;
+    } else if (part.endsWith('시')) {
+      address.siName = part;
+    } else if (part.endsWith('구') || part.endsWith('군')) {
+      address.guName = part;
+    } else if (part.endsWith('동') || part.endsWith('면')) {
+      address.dongName = part;
+    }
+  });
+
+  return address;
 };
