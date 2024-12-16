@@ -287,17 +287,27 @@ export const agitManage = async (agitId) => {
   return response;
 };
 
+// 아지트 members 관리
+export const agitAccountManage = async (agitId) => {
+  const response = await instance.get(`agits/${agitId}/manage/details`);
+  return response;
+};
 // 아지트 관리 통장권한 관리
 export const accountAuthorization = async (agitId, data) => {
-  const response = await instance.post(`agits/${agitId}/manage/accounts`, {
+  const response = await instance.post(`agits/${agitId}/manage/details`, {
     body: JSON.stringify({ ...data }),
   });
   return response;
 };
 
+// 아지트 temps 관리
+export const agitMemberManage = async (agitId) => {
+  const response = await instance.get(`agits/${agitId}/manage/approve`);
+  return response;
+};
 // 아지트 관리 가입신청 관리
 export const memberAuthorization = async (agitId, data) => {
-  const response = await instance.post(`agits/${agitId}/manage/members`, {
+  const response = await instance.post(`agits/${agitId}/manage/approve`, {
     body: JSON.stringify({ ...data }),
   });
   return response;

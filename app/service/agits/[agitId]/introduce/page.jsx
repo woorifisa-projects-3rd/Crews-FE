@@ -11,6 +11,7 @@ export default async function Page({ params }) {
   if (introducing?.errorCode) {
     throw new Error(introducing.message);
   }
+
   return (
     <div className="page">
       <AgitHeader currentId={params.agitId} />

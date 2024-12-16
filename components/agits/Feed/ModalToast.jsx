@@ -1,6 +1,6 @@
 'use client';
 import { useToast } from '@/hooks';
-import { ButtonM, Modal, Toast } from '../common';
+import { ButtonM, Modal, Toast } from '../../common';
 import { Box, Text } from '@radix-ui/themes';
 import styles from './ModalToast.module.css';
 import { useForm } from 'react-hook-form';

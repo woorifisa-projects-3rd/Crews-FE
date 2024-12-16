@@ -3,7 +3,7 @@
 import { useModal } from '@/hooks';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ButtonM, ButtonS, ImageCard, ImageCardSkeleton, Modal, TableRowSkeleton, Title } from '../common';
+import { ButtonM, ButtonS, ImageCard, ImageCardSkeleton, Modal, TableRowSkeleton, Title } from '../../common';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import Image from 'next/image';
 import styles from './FeedList.module.css';
@@ -17,52 +17,6 @@ import useSWR from 'swr';
 export default function FeedList({ agitId }) {
   const [feeds, setFeeds] = useState([]);
   const [page, setPage] = useState(0);
-  // const [hasNext, setHasNext] = useState(true);
-  // const [isLoading, setIsLoading] = useState(false);
-  // const fetchFeeds = async (currentPage) => {
-  //   if (!hasNext || isLoading) return;
-  //   setIsLoading(true);
-  //   try {
-  //     const response = await getFeeds(agitId, currentPage);
-  //     const newFeeds = response.data.map((feed) => ({
-  //       id: feed.id,
-  //       image: feed.image,
-  //       content: feed.content,
-  //       date: date(feed.date),
-  //       name: feed.decryptedName,
-  //       likeFeed: feed.likeFeed,
-  //     }));
-
-  //     // 중복 제거 로직
-  //     setFeeds((prev) => {
-  //       const existingIds = {};
-  //       prev.forEach((feed) => (existingIds[feed.id] = true));
-  //       const uniqueFeeds = newFeeds.filter((feed) => !existingIds[feed.id]);
-  //       return [...prev, ...uniqueFeeds];
-  //     });
-
-  //     setHasNext(response.hasNext);
-  //   } catch (error) {
-  //     console.error('Failed to fetch feeds', error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-  // useEffect(() => {
-  //   fetchFeeds(page);
-  // }, [page]);
-
-  // const handleScroll = () => {
-  //   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && hasNext) {
-  //     setPage((prev) => prev + 1);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   window.addEventListener('scroll', handleScroll);
-  //   return () => window.removeEventListener('scroll', handleScroll);
-  // }, [hasNext]);
-
   const {
     data: feedData,
     isLoading,

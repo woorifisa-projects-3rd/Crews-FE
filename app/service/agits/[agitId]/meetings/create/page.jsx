@@ -1,4 +1,4 @@
-import MeetingForm from '@/components/agits/MeetingForm';
+import MeetingForm from '@/components/agits/Meeting/MeetingForm';
 import { Header } from '@/components/common';
 import { Flex } from '@radix-ui/themes';
 

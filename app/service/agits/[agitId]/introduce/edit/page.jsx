@@ -1,5 +1,5 @@
 import AgitHeader from '@/components/agits/AgitHeader';
-import IntroduceEditForm from '@/components/agits/IntroduceEditForm';
+import IntroduceEditForm from '@/components/agits/Introduce/IntroduceEditForm';
 
 export default async function Page({ params }) {
   return (

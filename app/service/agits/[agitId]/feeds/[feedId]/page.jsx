@@ -2,8 +2,8 @@ import { Header } from '@/components/common';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import styles from './page.module.css';
 import { getFeed } from '@/apis/agitsAPI';
-import ReportHeartButton from '@/components/agits/ReportHeartButton';
-import EditDeleteButton from '@/components/agits/EditDeleteButton';
+import ReportHeartButton from '@/components/agits/Feed/ReportHeartButton';
+import EditDeleteButton from '@/components/agits/Feed/EditDeleteButton';
 import Image from 'next/image';
 import { CDN_URL } from '@/constants/auth';
 

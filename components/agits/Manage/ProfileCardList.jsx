@@ -1,6 +1,6 @@
 'use client';
 import { Box, Flex, Text } from '@radix-ui/themes';
-import { ButtonM, Modal, Title } from '../common';
+import { ButtonM, Modal, Title } from '../../common';
 import styles from './ProfileCardList.module.css';
 import { useModal } from '@/hooks';
 import Image from 'next/image';
@@ -102,15 +102,17 @@ export default function ProfileCardList({ agitId, status, members }) {
                     {member.email}
                   </Text>
                 </Box>
-                <button
-                  className={`${styles.captain_btn} light`}
-                  onClick={() => {
-                    setSelectedMember(member);
-                    status === 'account' ? openAccountUseModal() : openMemberInOutModal();
-                  }}
-                >
-                  {status === 'account' ? '통장 권한 부여' : '가입신청'}
-                </button>
+                {(status === 'member' || (status === 'account' && member.agitRole === 'ADVANCED')) && (
+                  <button
+                    className={`${styles.captain_btn} light`}
+                    onClick={() => {
+                      setSelectedMember(member);
+                      status === 'account' ? openAccountUseModal() : openMemberInOutModal();
+                    }}
+                  >
+                    {status === 'account' ? '통장 권한 부여' : '가입신청'}
+                  </button>
+                )}
               </Flex>
             </li>
           ))}

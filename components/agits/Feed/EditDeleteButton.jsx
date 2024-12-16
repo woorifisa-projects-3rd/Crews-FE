@@ -1,7 +1,7 @@
 'use client';
 
 import { deleteFeed } from '@/apis/agitsAPI';
-import { ButtonM, Toast } from '../common';
+import { ButtonM, Toast } from '../../common';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks';
 

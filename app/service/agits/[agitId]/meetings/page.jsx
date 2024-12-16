@@ -1,7 +1,7 @@
 import { Title, ButtonS } from '@/components/common';
 import { Flex } from '@radix-ui/themes';
 import AgitHeader from '@/components/agits/AgitHeader';
-import MeetingCard from '@/components/agits/MeetingCard';
+import MeetingCard from '@/components/agits/Meeting/MeetingCard';
 
 export default function Page({ params }) {
   return (

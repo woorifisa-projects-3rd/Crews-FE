@@ -1,4 +1,4 @@
-import FeedEditForm from '@/components/agits/FeedEditForm';
+import FeedEditForm from '@/components/agits/Feed/FeedEditForm';
 import { Header } from '@/components/common';
 
 export default function Page({ params }) {

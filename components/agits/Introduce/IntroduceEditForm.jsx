@@ -1,6 +1,6 @@
 'use client';
 import { Box, Flex, Text } from '@radix-ui/themes';
-import { ButtonL, Label, Title, Toast } from '../common';
+import { ButtonL, Label, Title, Toast } from '../../common';
 import useSWR from 'swr';
 import { getIntroducingForEdit, updateIntroducing } from '@/apis/agitsAPI';
 import { useEffect, useState } from 'react';
@@ -100,7 +100,10 @@ export default function IntroduceEditForm({ agitId }) {
       };
 
       // 백엔드에 데이터 업데이트 요청
-      await updateIntroducing(agitId, formData);
+      const update = await updateIntroducing(agitId, formData);
+      if (update?.errorCode) {
+        alert(update.message);
+      }
 
       // 성공 시 페이지 이동
       showToast('수정이 완료되었습니다.');

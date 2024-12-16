@@ -1,6 +1,6 @@
 'use client';
 import { Box, Flex, Text } from '@radix-ui/themes';
-import { ButtonL, Toast } from '../common';
+import { ButtonL, Toast } from '../../common';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks';
 import { useEffect, useState } from 'react';
