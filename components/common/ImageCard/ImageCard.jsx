@@ -6,14 +6,16 @@ import { CDN_URL } from '@/constants/auth';
 
 export default function ImageCard({ as = 'link', type = 'agits', data, dynamicId, onClick }) {
   const isAgit = type == 'agits';
+  console.log('data', data);
+
   const content = (
     <>
       <Flex gap="15px">
         <Box className={styles.img_box}>
           <Box
-            className={`back_img ${data.image ? '' : styles.blank}`}
+            className={`back_img ${!data?.image ? styles.blank : ''}`}
             style={{
-              backgroundImage: `url(${data?.image == null || data?.image == '' ? '/imgs/img_bg_card.jpg' : CDN_URL + data?.image})`,
+              backgroundImage: `url(${data?.image ? CDN_URL + data.image : '/imgs/img_bg_card.jpg'})`,
             }}
           >
             <Image src="/imgs/img_bg_card.jpg" width={65} height={65} alt={`${data.name} 소개 이미지`} />

@@ -1,0 +1,31 @@
+.feed_list ul li {
+  width: calc(50% - 5px);
+}
+.name_tag {
+  background-color: var(--bg-color);
+  color: var(--gray-txt-1);
+}
+.feed_btn {
+  position: relative;
+}
+.feed_btn button {
+  position: absolute;
+  width: 36px;
+  height: 34px;
+  right: 0;
+  bottom: 0;
+  font-size: 0;
+}
+.info em {
+  font-weight: 500;
+}
+.info b {
+  width: 55px;
+  height: 20px;
+  background-color: var(--bg-color);
+  border: 1px solid #f0f0f0;
+  text-align: center;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 20px;
+}

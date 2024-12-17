@@ -1,0 +1,17 @@
+.report_btn {
+  width: 100px;
+  padding: 0 15px;
+  height: 30px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  background-color: var(--crimson-1);
+}
+
+.like_count button {
+  font-size: 0;
+}
+.like_count p {
+  line-height: 30px;
+}

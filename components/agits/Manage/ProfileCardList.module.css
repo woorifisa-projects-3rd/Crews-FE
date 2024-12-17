@@ -21,3 +21,11 @@
   font-weight: 700;
   flex: none;
 }
+.cardList .img_box {
+  width: 65px;
+  flex: none;
+}
+.cardList .img_box .blank img {
+  visibility: visible;
+  opacity: 1;
+}

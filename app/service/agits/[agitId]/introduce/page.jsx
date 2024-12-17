@@ -1,8 +1,17 @@
 import { Label, Title, ButtonL } from '@/components/common';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import AgitHeader from '@/components/agits/AgitHeader';
+import { getIntroducing } from '@/apis/agitsAPI';
+import Image from 'next/image';
+import { getAddressValue } from '@/utils/address';
+import { CDN_URL } from '@/constants/auth';
 
 export default async function Page({ params }) {
+  const introducing = await getIntroducing(params.agitId);
+  if (introducing?.errorCode) {
+    throw new Error(introducing.message);
+  }
+
   return (
     <div className="page">
       <AgitHeader currentId={params.agitId} />
@@ -10,15 +19,20 @@ export default async function Page({ params }) {
         <section>
           <Flex direction="column" gap="20px">
             <Box className="title_btn">
-              <Title>어쩌고저쩌고 아지트명</Title>
+              <Title>{introducing.agitName}</Title>
               <div className="right_top">
-                <Label style="lime">반려동물</Label>
+                <Label style="lime">{introducing.subject}</Label>
               </div>
             </Box>
             <Flex direction="column" gap="20px">
               <Box className="img_box">
-                <div className="img">
-                  <img src="/dev/img_introduce.jpg" />
+                <div
+                  className="img"
+                  style={{
+                    backgroundImage: `url(${introducing?.image == null || introducing?.image == '' ? '/dev/img_introduce.jpg' : CDN_URL + introducing?.image})`,
+                  }}
+                >
+                  <Image src="/dev/img_introduce.jpg" width={390} height={250} alt={introducing.agitName} />
                 </div>
               </Box>
               <Flex direction="column" gap="20px">
@@ -26,15 +40,21 @@ export default async function Page({ params }) {
                   <Flex direction="column" gap="10px" asChild>
                     <ul>
                       <li>
+                        <em>활동 지역</em>
+                        <Text as="p" size="2" weight="medium" className="gray_t1">
+                          {getAddressValue(introducing.address)}
+                        </Text>
+                      </li>
+                      <li>
                         <em>한줄 소개</em>
                         <Text as="p" size="2" weight="medium" className="gray_t1">
-                          어쩌고저쩌고가나다라마바사아자차
+                          {introducing.introduce}
                         </Text>
                       </li>
                       <li>
                         <em>모임 특징</em>
                         <Text as="p" size="2" weight="medium" className="gray_t1">
-                          우리는 이런것도 하고 저런것도 하고 이래저래 어쩌고저쩌고 빙글빙글 얼렁뚱땅 천방지축
+                          {introducing.content}
                         </Text>
                       </li>
                     </ul>
@@ -42,27 +62,16 @@ export default async function Page({ params }) {
                 </Box>
                 <Flex wrap="wrap" gap="10px" asChild>
                   <ul>
-                    <li>
-                      <Label style="deep">#df</Label>
-                    </li>
-                    <li>
-                      <Label style="deep">#dd</Label>
-                    </li>
-                    <li>
-                      <Label style="deep">#ds</Label>
-                    </li>
-                    <li>
-                      <Label style="deep">#adbbes</Label>
-                    </li>
-                    <li>
-                      <Label style="deep">#djeppsenvs</Label>
-                    </li>
-                    <li>
-                      <Label style="deep">#ab</Label>
-                    </li>
+                    {introducing.interests.map((interest, index) => (
+                      <li key={index}>
+                        <Label style="deep">#{interest.name}</Label>
+                      </li>
+                    ))}
                   </ul>
                 </Flex>
-                <ButtonL style="deep">수정하기</ButtonL>
+                <ButtonL style="deep" as="link" href={`/service/agits/${params.agitId}/introduce/edit`}>
+                  수정하기
+                </ButtonL>
               </Flex>
             </Flex>
           </Flex>
