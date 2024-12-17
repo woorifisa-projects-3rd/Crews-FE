@@ -21,7 +21,7 @@ export default function PaymentMain({ paymentData }) {
   const [paymentActivation, setPaymentActivation] = useState(false);
   const { isOpen, openModal, closeModal } = useModal();
   const { isOpen: pinIsOpen, openModal: pinOpenModal, closeModal: pinCloseModal } = useModal();
-  const [timeLeft, setTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(59);
   const router = useRouter();
   const { toast, setToast, toastMessage, showToast } = useToast();
 
@@ -36,7 +36,7 @@ export default function PaymentMain({ paymentData }) {
         const response = await getPaymentResult(paymentData[activeIndex].agitId);
         if (response?.data !== null) {
           setPaymentActivation(false);
-          setTimeLeft(5);
+          setTimeLeft(59);
           return clearInterval(timer); // 타이머 중단
         } else if (timeLeft == 0) {
           return clearInterval(timer); // 타이머 중단
@@ -77,7 +77,7 @@ export default function PaymentMain({ paymentData }) {
     // const response = await getQRCode();
     setAgitInfo({ ...agitInfo, qrCode: response.qrCode, pinNumber: response.pinNumber });
     setPaymentActivation(true);
-    setTimeLeft(5); // 타이머 초기화
+    setTimeLeft(59); // 타이머 초기화
     closeModal(); // 모달 닫기
   };
 
@@ -86,13 +86,13 @@ export default function PaymentMain({ paymentData }) {
       // 시간이 초과된 경우 타이머를 다시 초기화\
       const response = await getQRCode({ agitId: paymentData[activeIndex].agitId, pinNumber: agitInfo.pinNumber });
       setAgitInfo({ ...agitInfo, qrCode: response.qrCode });
-      setTimeLeft(5);
+      setTimeLeft(59);
       setPaymentActivation(true); // 결제 활성화 상태 유지
     } else {
       // 결제 취소
       setAgitInfo({ ...agitInfo, qrCode: '' });
       setPaymentActivation(false);
-      setTimeLeft(5); // 타이머 초기화
+      setTimeLeft(59); // 타이머 초기화
       setActiveIndex(0);
     }
   };

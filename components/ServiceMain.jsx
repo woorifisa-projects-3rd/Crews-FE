@@ -4,7 +4,7 @@ import { ButtonL, ImageCard, ImageCardSkeleton, Modal, Title, Toast } from '@/co
 import { useSession } from 'next-auth/react';
 import { useModal, useToast } from '@/hooks';
 import useSWR from 'swr';
-import { applyForAgit, getAgits, getRecruitNewAgits } from '@/apis/agitsAPI';
+import { applyForAgit, getAgitInfo, getAgits, getRecruitNewAgits } from '@/apis/agitsAPI';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import scrollToTop from '@/utils/scrollToTop';
@@ -85,8 +85,13 @@ export default function ServiceMain() {
     }
 
     setData((prev) => prev.filter((item) => item.id !== agitId));
-
     alert('가입 신청이 완료되었습니다.');
+
+    const agitInfoResponse = await getAgitInfo();
+    if (!agitInfoResponse.errorCode) {
+      localStorage.setItem('agitInfoList', JSON.stringify(agitInfoResponse.agitInfoList));
+    }
+
     recruitNewMutate();
     closeModal();
   };

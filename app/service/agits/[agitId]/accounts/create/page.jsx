@@ -5,7 +5,7 @@ import DepositProduct from '@/components/agits/Account/AccountCreate';
 import { getProducts } from '@/apis/agitsAPI';
 
 export default async function Page({ params }) {
-  const products = await getProducts();
+  const products = await getProducts(params.agitId);
   if (products?.errorCode) {
     throw new Error(products.message);
   }

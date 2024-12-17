@@ -11,6 +11,7 @@ import { useMembershipStore } from '@/stores/mypageStore';
 import { useToast } from '@/hooks';
 import { useRouter } from 'next/navigation';
 import { getFeePaymentInfo, getPersonalAccounts } from '@/apis/mypageAPI';
+import { CDN_URL } from '@/constants/auth';
 
 export default function MembershipFee({ crewData: crewFallbackData, myData: myFallbackData }) {
   const { toast, setToast, toastMessage, showToast } = useToast();
@@ -57,7 +58,7 @@ export default function MembershipFee({ crewData: crewFallbackData, myData: myFa
       mutate([crewAccountId, myAccountId]);
       mutate('members/me/agits-accounts', undefined, { revalidate: true });
       showToast(message);
-      router.push('/service/mypage/assets');
+      router.push('/service/mypage/fee');
     } else {
       showToast(`이체 실패: ${message}`);
     }
@@ -86,7 +87,9 @@ export default function MembershipFee({ crewData: crewFallbackData, myData: myFa
               <Box className={styles.img_box}>
                 <Box
                   className="back_img"
-                  style={{ backgroundImage: `url(${selectedCrewAccount.bankImage || '/default-image.jpg'})` }}
+                  style={{
+                    backgroundImage: `url(${CDN_URL}${selectedCrewAccount.bankImage || '/default-image.jpg'})`,
+                  }}
                 >
                   <Image src="/imgs/img_bg_bank.jpg" width={36} height={36} alt="은행로고" />
                 </Box>

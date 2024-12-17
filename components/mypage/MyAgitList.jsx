@@ -1,13 +1,9 @@
 'use client';
 
-import Image from 'next/image';
-
-const { ImageCard, Title } = require('@/components/common');
-const { Flex, Text, Box } = require('@radix-ui/themes');
+import { Box, Flex, Text } from '@radix-ui/themes';
+import { ImageCard } from '@/components/common';
 
 export default function MyAgitList({ data }) {
-  console.log(data);
-
   return (
     <>
       {data == undefined || data == null || data.length <= 0 ? (
@@ -18,10 +14,16 @@ export default function MyAgitList({ data }) {
           </Text>
         </Box>
       ) : (
-        <Flex direction="column" gap="10px">
-          {data.map((agit, i) => {
-            return <ImageCard data={agit} key={`agit${i}`} />;
-          })}
+        <Flex direction="column" gap="10px" asChild>
+          <ul>
+            {data.map((agit, i) => {
+              return (
+                <li key={`agit${i}`}>
+                  <ImageCard data={agit} />
+                </li>
+              );
+            })}
+          </ul>
         </Flex>
       )}
     </>

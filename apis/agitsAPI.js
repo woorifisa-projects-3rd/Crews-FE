@@ -126,8 +126,8 @@ export const getFeeds = async (agitId, page) => {
 };
 
 // 모든 계좌상품 조회
-export const getProducts = async () => {
-  const response = await instance.get(`products`);
+export const getProducts = async (agitId) => {
+  const response = await instance.get(`agits/${agitId}/products`);
   return response;
 };
 

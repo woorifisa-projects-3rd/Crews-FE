@@ -38,7 +38,7 @@ export default function FeePayment({ agitId, data, yearAndMonth }) {
               <Box
                 className="back_img"
                 style={{
-                  backgroundImage: `url(${selectedCrewAccouont.bankImage == '' || selectedCrewAccouont.bankImage == null ? '/imgs/img_bg_bank.jpg' : CDN_URL + selectedCrewAccouont.bankImage})`,
+                  backgroundImage: `url(${selectedCrewAccouont?.bankImage == '' || selectedCrewAccouont?.bankImage == null ? '/imgs/img_bg_bank.jpg' : CDN_URL + selectedCrewAccouont?.bankImage})`,
                 }}
               >
                 <Image src={'/imgs/img_bg_bank.jpg'} width={36} height={36} alt={selectedCrewAccouont?.bankName} />
@@ -61,12 +61,12 @@ export default function FeePayment({ agitId, data, yearAndMonth }) {
         </Box>
         <Flex direction="column" gap="10px">
           <SelectFilter filter="location" selectList={personalaccountlist} onSelect={handleSelect}>
-            {personalaccountlist[0].productName}
+            {personalaccountlist[0]?.productName}
           </SelectFilter>
           <Card>
             <Flex justify="between" align="center">
               <Strong>
-                <span className="underline">{selectedAccount.productName}</span>
+                <span className="underline">{selectedAccount?.productName}</span>
               </Strong>
               <Text size="3" className="gray_t2">
                 에서

@@ -13,7 +13,7 @@ import { useSession } from 'next-auth/react';
 import useModal from '@/hooks/useModal';
 import ButtonL from '@/components/common/Button/ButtonL';
 import { searchAgits } from '@/apis/searchAPI';
-import { applyForAgit } from '@/apis/agitsAPI';
+import { applyForAgit, getAgitInfo } from '@/apis/agitsAPI';
 
 export default function SearchResult({ params }) {
   const [items, setItems] = useState([]);
@@ -92,6 +92,11 @@ export default function SearchResult({ params }) {
 
     if (items.length <= 5 && hasMore) {
       await loadMore();
+    }
+
+    const responseAgitInfo = await getAgitInfo();
+    if (!responseAgitInfo.errorCode) {
+      localStorage.setItem('agitInfoList', JSON.stringify(responseAgitInfo.agitInfoList));
     }
 
     alert('가입 신청이 완료되었습니다.');
