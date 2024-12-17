@@ -34,7 +34,7 @@ export default function ProfileCardList({ agitId, status, members }) {
 
     const accountAuth = await accountAuthorization(agitId, formData);
     if (accountAuth?.errorCode) {
-      alert(account.errorCode);
+      alert(accountAuth.errorCode);
     }
     alert('통장 권한 신청을 수락하였습니다.');
     closeAccountUseModal();
